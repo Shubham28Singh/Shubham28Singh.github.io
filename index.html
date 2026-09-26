@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<!--
+  Personal academic site — Shubham Singh
+  ------------------------------------------------------------------
+  HOW TO PUBLISH (GitHub Pages)
+  1. Create a public repository named <username>.github.io
+  2. Add this file as index.html in the repository root.
+  3. Optional files in the same repository:
+       photo.jpg  – square headshot (initials are shown until it exists)
+       cv.pdf     – your CV (linked from the header)
+  4. The site appears at https://<username>.github.io within a minute or two.
+
+  MAINTENANCE
+  • Search for [PLACEHOLDER] and replace every instance.
+  • News: add a new <li> at the TOP of the news list and update "Last updated".
+    Only the first 6 items show until the visitor clicks "Show all news".
+  • Publications: copy one <li class="pub" ...> block. Set data-topic to
+    geofence, formation, or other so the topic filter works.
+  • Demonstrations: replace a placeholder frame with a YouTube embed (see the
+    comment inside the Demonstrations section).
+  • Colours live in :root at the top of the <style> block.
+  • All figures are drawn by the script at the bottom; no image files needed.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shubham Singh | Safety-critical control of robotic and multi-agent systems</title>
+<meta name="description" content="Shubham Singh, postdoctoral researcher at Institute of Science Tokyo. Safety-critical control, barrier Lyapunov functions, Möbius-transformation-based geofencing, and multi-agent coordination.">
+<meta name="author" content="Shubham Singh">
+<meta property="og:title" content="Shubham Singh | Control Systems and Robotics">
+<meta property="og:description" content="Safety-critical control of robotic and multi-agent systems under nonuniform motion constraints.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23A63A50' stroke-width='2.5'/%3E%3Ccircle cx='19.5' cy='16' r='8' fill='none' stroke='%2317736B' stroke-width='2.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --paper:   #F2F4F1;
+    --surface: #E7EBE7;
+    --ink:     #1C2733;
+    --muted:   #56626E;
+    --rule:    #CFD6D1;
+    --orbit:   #17736B;
+    --fence:   #A63A50;
+    --margin:  rgba(166, 58, 80, 0.10);
+    --grid:    rgba(28, 39, 51, 0.16);
+    --flow:    rgba(28, 39, 51, 0.45);
+    --focus:   #17736B;
+
+    --serif: "STIX Two Text", "STIX Two", Cambria, Georgia, "Times New Roman", serif;
+    --sans:  "Public Sans", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+
+    --measure: 40rem;
+    --wide: 74rem;
+
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:   #121B22;
+      --surface: #1A252D;
+      --ink:     #E2E7E3;
+      --muted:   #9BA8B2;
+      --rule:    #2C3942;
+      --orbit:   #4FB8AE;
+      --fence:   #E27C8F;
+      --margin:  rgba(226, 124, 143, 0.12);
+      --grid:    rgba(226, 231, 227, 0.14);
+      --flow:    rgba(226, 231, 227, 0.45);
+      --focus:   #4FB8AE;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:   #121B22;
+    --surface: #1A252D;
+    --ink:     #E2E7E3;
+    --muted:   #9BA8B2;
+    --rule:    #2C3942;
+    --orbit:   #4FB8AE;
+    --fence:   #E27C8F;
+    --margin:  rgba(226, 124, 143, 0.12);
+    --grid:    rgba(226, 231, 227, 0.14);
+    --flow:    rgba(226, 231, 227, 0.45);
+    --focus:   #4FB8AE;
+  }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-behavior: smooth; scroll-padding-top: calc(4.5rem + env(safe-area-inset-top, 0px)); }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--serif); font-size: 1.125rem; line-height: 1.62;
+    text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--orbit); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+  img, svg { max-width: 100%; }
+  button { font: inherit; }
+  .wrap { width: min(100% - 2.5rem, var(--wide)); margin-inline: auto; }
+  .skip {
+    position: absolute; left: -999px; top: 0.5rem; z-index: 20;
+    background: var(--ink); color: var(--paper); padding: 0.5rem 0.8rem;
+    font-family: var(--sans); font-size: 0.9rem;
+  }
+  .skip:focus { left: 0.75rem; }
+  .sans { font-family: var(--sans); }
+
+  /* ---------- Navigation ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 10;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 3.5rem; }
+  .nav-name { font-weight: 600; font-size: 1.05rem; color: var(--ink); text-decoration: none; white-space: nowrap; }
+  .nav ul {
+    display: flex; gap: 1.3rem; list-style: none; margin: 0; padding: 0;
+    font-family: var(--sans); font-size: 0.9rem; overflow-x: auto; scrollbar-width: none;
+  }
+  .nav ul::-webkit-scrollbar { display: none; }
+  .nav ul a { color: var(--muted); text-decoration: none; white-space: nowrap; padding: 0.3rem 0; }
+  .nav ul a:hover, .nav ul a[aria-current="true"] { color: var(--ink); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(2.5rem, 5vw, 4rem); border-bottom: 1px solid var(--rule); }
+  .hero .wrap {
+    display: grid; gap: clamp(2rem, 5vw, 4rem);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center;
+  }
+  .id { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.1rem; }
+  .avatar {
+    flex: none; width: 5.5rem; height: 5.5rem; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--orbit);
+    display: grid; place-items: center; overflow: hidden;
+    font-family: var(--sans); font-weight: 600; font-size: 1.5rem; color: var(--orbit);
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero h1 {
+    font-weight: 500; font-size: clamp(2.5rem, 5.6vw, 4.2rem);
+    line-height: 1.02; letter-spacing: -0.015em; margin: 0;
+  }
+  .role { font-family: var(--sans); font-size: 1rem; line-height: 1.5; color: var(--muted); margin: 0 0 1.5rem; }
+  .role strong { color: var(--ink); font-weight: 600; display: block; font-size: 1.05rem; }
+  .lede { font-size: 1.25rem; line-height: 1.55; margin: 0 0 1.7rem; max-width: 32rem; }
+  .links { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 0; padding: 0; list-style: none; font-family: var(--sans); font-size: 0.92rem; }
+  .links a {
+    display: inline-block; padding: 0.45rem 0.9rem; border: 1px solid var(--rule); border-radius: 999px;
+    color: var(--ink); text-decoration: none; background: var(--paper);
+  }
+  .links a:hover { border-color: var(--orbit); color: var(--orbit); }
+  .links a.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .links a.primary:hover { background: var(--orbit); border-color: var(--orbit); color: var(--paper); }
+
+  /* ---------- Hero figure ---------- */
+  .fig { margin: 0; }
+  .planes { display: grid; align-items: center; gap: 0.5rem; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .plane { margin: 0; text-align: center; }
+  .plane svg { display: block; width: 100%; height: auto; aspect-ratio: 1; overflow: visible; }
+  .plane figcaption { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); margin-top: 0.35rem; }
+  .map { font-style: italic; font-size: 1rem; text-align: center; line-height: 1.3; padding: 0 0.25rem; }
+  .map .arrow { display: block; font-style: normal; color: var(--muted); font-size: 1.4rem; line-height: 1; margin-top: 0.3rem; }
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.2rem;
+    margin-top: 1rem; padding: 0.75rem 1rem; border: 1px solid var(--rule); border-radius: 10px;
+    font-family: var(--sans); font-size: 0.86rem; color: var(--muted);
+  }
+  .controls label { color: var(--ink); font-weight: 500; }
+  .controls input[type="range"] { flex: 1 1 10rem; accent-color: var(--orbit); min-width: 8rem; }
+  .readout { flex: 1 1 100%; margin: 0; }
+  .readout b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .pill-btn {
+    font-family: var(--sans); font-size: 0.8rem; color: var(--muted); background: transparent;
+    border: 1px solid var(--rule); border-radius: 999px; padding: 0.3rem 0.75rem; cursor: pointer;
+  }
+  .pill-btn:hover { color: var(--ink); border-color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { #pause { display: none; } }
+  .fig-caption { font-family: var(--sans); font-size: 0.86rem; line-height: 1.55; color: var(--muted); margin: 0.9rem 0 0; }
+  .fig-caption b { color: var(--ink); font-weight: 600; }
+
+  svg .grid     { fill: none; stroke: var(--grid); stroke-width: 0.006; }
+  svg .zone     { fill: var(--margin); fill-rule: evenodd; stroke: none; }
+  svg .fence    { fill: none; stroke: var(--fence); stroke-width: 0.022; }
+  svg .orbit    { fill: none; stroke: var(--orbit); stroke-width: 0.018; stroke-dasharray: 0.05 0.035; }
+  svg .gap      { stroke: var(--fence); stroke-width: 0.012; }
+  svg .gap-lbl  { font-family: var(--sans); font-size: 0.1px; font-weight: 500; fill: var(--fence); }
+  svg .trail    { fill: none; stroke: var(--ink); stroke-width: 0.014; stroke-linecap: round; opacity: 0.35; }
+  svg .agent    { fill: var(--ink); }
+  svg .agent-ring { fill: none; stroke: var(--paper); stroke-width: 0.012; }
+  svg .path     { fill: none; stroke: var(--ink); stroke-width: 0.022; stroke-linecap: round; stroke-linejoin: round; }
+  svg .flow     { fill: none; stroke: var(--flow); stroke-width: 0.014; stroke-linecap: round; }
+  svg .obstacle { fill: var(--margin); stroke: var(--fence); stroke-width: 0.018; }
+  svg .body     { fill: var(--surface); stroke: var(--ink); stroke-width: 0.02; }
+  svg .edge     { stroke: var(--muted); stroke-width: 0.014; }
+  svg .range    { fill: none; stroke: var(--orbit); stroke-width: 0.012; stroke-dasharray: 0.04 0.03; }
+  svg .axis     { stroke: var(--muted); stroke-width: 0.012; }
+  svg .bound    { fill: none; stroke: var(--fence); stroke-width: 0.02; }
+  svg .signal   { fill: none; stroke: var(--orbit); stroke-width: 0.022; }
+
+  /* ---------- Sections ---------- */
+  section { padding: clamp(3rem, 6.5vw, 4.75rem) 0; border-bottom: 1px solid var(--rule); }
+  .sec-head { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); gap: 1rem 3rem; }
+  @media (min-width: 761px) {
+    .sec-head > h2 { position: sticky; top: calc(5rem + env(safe-area-inset-top, 0px)); align-self: start; }
+  }
+  h2 { font-weight: 500; font-size: clamp(1.75rem, 3.2vw, 2.2rem); line-height: 1.15; letter-spacing: -0.005em; margin: 0; }
+  h3 { font-family: var(--sans); font-weight: 600; font-size: 0.95rem; color: var(--muted); margin: 2.4rem 0 0.9rem; }
+  h3:first-child { margin-top: 0; }
+  .sec-body { max-width: 52rem; min-width: 0; }
+  .sec-body > p { max-width: var(--measure); margin: 0 0 1rem; }
+  .intro { color: var(--muted); font-size: 1.05rem; }
+
+  /* About */
+  .about p { max-width: var(--measure); margin: 0 0 1rem; }
+  .affil { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.9rem 2rem; }
+  .affil li { border-left: 2px solid var(--orbit); padding: 0.1rem 0 0.1rem 0.9rem; }
+  .affil .when { display: block; font-family: var(--sans); font-size: 0.8rem; color: var(--muted); }
+  .affil .what { display: block; font-weight: 600; line-height: 1.35; }
+  .affil .where { display: block; font-size: 1rem; }
+  .about .callout {
+    margin: 2rem 0 0; padding: 1rem 1.2rem; max-width: var(--measure);
+    background: var(--surface); border-radius: 10px; font-size: 1.05rem;
+  }
+
+  /* News */
+  .news-meta { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); margin: 0 0 1.2rem; }
+  .news { list-style: none; margin: 0; padding: 0; max-width: 46rem; }
+  .news li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 1rem; padding: 0.7rem 0; border-top: 1px solid var(--rule); }
+  .news li:first-child { border-top: 0; padding-top: 0; }
+  .news time { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); padding-top: 0.2em; font-variant-numeric: tabular-nums; }
+  .news .tag { font-family: var(--sans); font-size: 0.75rem; font-weight: 600; color: var(--orbit); margin-right: 0.4rem; }
+  .news li.more { display: none; }
+  .news.expanded li.more { display: grid; }
+  .news-toggle { margin-top: 1rem; }
+
+  /* Research highlights */
+  .hl { list-style: none; margin: 0; padding: 0; }
+  .hl > li {
+    display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 1.6rem;
+    padding: 1.6rem 0; border-top: 1px solid var(--rule); align-items: start;
+  }
+  .hl > li:first-child { border-top: 0; padding-top: 0; }
+  .thumb { width: 100%; aspect-ratio: 1; background: var(--surface); border-radius: 12px; padding: 0.55rem; }
+  .thumb svg { display: block; width: 100%; height: 100%; overflow: hidden; }
+  .hl h4 { font-size: 1.22rem; font-weight: 600; margin: 0 0 0.35rem; line-height: 1.3; }
+  .hl p { margin: 0 0 0.6rem; max-width: var(--measure); }
+  .hl .meta { font-family: var(--sans); font-size: 0.84rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center; }
+  .hl .venue { color: var(--ink); font-weight: 500; }
+  .chips { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chips a { font-family: var(--sans); font-size: 0.78rem; padding: 0.1rem 0.55rem; border: 1px solid var(--rule); border-radius: 999px; text-decoration: none; }
+  .chips a:hover { border-color: var(--orbit); }
+  .kw { font-weight: 600; }
+
+  .focus-list { margin: 0; padding-left: 1.1rem; max-width: var(--measure); }
+  .focus-list li { margin-bottom: 0.55rem; padding-left: 0.3rem; }
+  .focus-list li::marker { color: var(--orbit); }
+
+  /* Demonstrations */
+  .demos { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.6rem; }
+  .demo { margin: 0; }
+  .frame {
+    aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden;
+    background: var(--surface); border: 1px dashed var(--rule);
+    display: grid; place-items: center; text-align: center; padding: 1rem;
+    font-family: var(--sans); font-size: 0.82rem; color: var(--muted);
+  }
+  .frame iframe, .frame video { width: 100%; height: 100%; border: 0; display: block; }
+  .frame.has-media { padding: 0; border-style: solid; }
+  .demo figcaption { margin-top: 0.6rem; font-size: 1rem; line-height: 1.45; }
+  .demo figcaption b { display: block; font-weight: 600; }
+  .demo figcaption span { font-family: var(--sans); font-size: 0.84rem; color: var(--muted); }
+  .sec-body > p.setup { margin: 1.6rem 0 0; max-width: var(--measure); color: var(--muted); font-size: 1.02rem; }
+
+  /* Publications */
+  .filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.8rem; padding: 0; list-style: none; }
+  .filter button {
+    font-family: var(--sans); font-size: 0.85rem; color: var(--ink); cursor: pointer;
+    padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--paper);
+  }
+  .filter button:hover { border-color: var(--orbit); }
+  .filter button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .pubs { list-style: none; margin: 0; padding: 0; }
+  .pub { position: relative; padding-left: 2.6rem; margin-bottom: 1.15rem; max-width: 46rem; }
+  .pub::before { content: "[" attr(data-n) "]"; position: absolute; left: 0; top: 0.08em; font-family: var(--sans); font-size: 0.85rem; color: var(--muted); }
+  .pub[hidden], .pub-group[hidden] { display: none; }
+  .pub .title { display: block; }
+  .pub .me { font-weight: 600; }
+  .pub .where { font-style: italic; }
+  .pub .note { font-family: var(--sans); font-size: 0.82rem; color: var(--fence); font-weight: 500; }
+  .pub .chips { margin-left: 0.35rem; vertical-align: 0.08em; }
+  .empty-note { font-family: var(--sans); font-size: 0.9rem; color: var(--muted); }
+  details { margin-top: 1.6rem; max-width: 46rem; }
+  summary { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); cursor: pointer; }
+  summary:hover { color: var(--ink); }
+  details[open] summary { margin-bottom: 1rem; }
+
+  /* Code */
+  .repos { list-style: none; margin: 0; padding: 0; }
+  .repos li { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) auto; gap: 0.3rem 1.5rem; align-items: baseline; padding: 0.95rem 0; border-top: 1px solid var(--rule); }
+  .repos li:first-child { border-top: 0; padding-top: 0; }
+  .repos a { font-family: var(--sans); font-weight: 500; font-size: 0.95rem; }
+  .repos .rel { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+
+  /* Background */
+  .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 3rem; }
+  .cols p { margin: 0; }
+  .timeline { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--rule); }
+  .timeline li { position: relative; padding: 0 0 1.4rem 1.4rem; }
+  .timeline li:last-child { padding-bottom: 0; }
+  .timeline li::before { content: ""; position: absolute; left: -7px; top: 0.5em; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--orbit); }
+  .timeline .yr { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); display: block; }
+  .timeline .deg { font-weight: 600; display: block; }
+  .timeline .inst { display: block; }
+  .timeline .thesis { display: block; font-style: italic; color: var(--muted); font-size: 1rem; }
+  .plain { margin: 0; padding: 0; list-style: none; }
+  .plain li { margin-bottom: 0.35rem; }
+
+  /* Footer */
+  footer { padding: clamp(3rem, 7vw, 5rem) 0 3rem; }
+  footer .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: end; }
+  .contact-line { font-size: clamp(1.4rem, 3vw, 1.9rem); line-height: 1.3; margin: 0 0 1rem; max-width: 34rem; }
+  .small { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); margin: 0.3rem 0 0; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .hero .wrap { grid-template-columns: minmax(0, 1fr); }
+    .fig { max-width: 40rem; }
+  }
+  @media (max-width: 760px) {
+    body { font-size: 1.0625rem; }
+    .sec-head { grid-template-columns: minmax(0, 1fr); }
+    .hl > li { grid-template-columns: minmax(0, 1fr); gap: 0.8rem; }
+    .thumb { width: 6.5rem; }
+    .repos li { grid-template-columns: minmax(0, 1fr); }
+    .cols { grid-template-columns: minmax(0, 1fr); }
+    footer .wrap { grid-template-columns: minmax(0, 1fr); }
+    .nav-name { display: none; }
+    .news li { grid-template-columns: minmax(0, 1fr); gap: 0.1rem; }
+  }
+  @media (max-width: 480px) {
+    .planes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .map { grid-column: 1 / -1; grid-row: 2; }
+    .map .arrow { display: none; }
+    .avatar { width: 4.2rem; height: 4.2rem; font-size: 1.2rem; }
+  }
+  @media print {
+    .nav, .controls, .skip, .filter, .news-toggle, #theme { display: none; }
+    .news li.more { display: grid; }
+    section, .hero { border: 0; padding: 1.5rem 0; }
+  }
+</style>
+</head>
+
+<body>
+<a class="skip" href="#about">Skip to content</a>
+
+<nav class="nav" aria-label="Sections">
+  <div class="wrap">
+    <a class="nav-name" href="#top">Shubham Singh</a>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#news">News</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#demos">Experiments</a></li>
+      <li><a href="#publications">Publications</a></li>
+      <li><a href="#background">Background</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <div class="id">
+        <div class="avatar" aria-hidden="true">
+          <!-- Add photo.jpg (square headshot) to the repository; initials show until then. -->
+          <img src="photo.jpg" alt="" onerror="this.remove()">
+          <span>SS</span>
+        </div>
+        <h1>Shubham Singh</h1>
+      </div>
+      <p class="role">
+        <strong>Postdoctoral Researcher, Control Systems and Robotics</strong>
+        [PLACEHOLDER: Lab name], Institute of Science Tokyo (formerly Tokyo Institute of Technology), Japan<br>
+        Host: [PLACEHOLDER: Prof. name]
+      </p>
+      <p class="lede">
+        I design controllers with formal safety guarantees for robots and robot teams that must complete a mission while staying inside limits that change with position.
+      </p>
+      <ul class="links">
+        <li><a class="primary" href="https://scholar.google.com/citations?user=Gc7Lfs0AAAAJ&amp;hl=en">Google Scholar</a></li>
+        <li><a href="cv.pdf">CV</a></li>
+        <li><a href="https://github.com/[PLACEHOLDER: username]">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/shubham28-singh">LinkedIn</a></li>
+        <li><a href="https://orcid.org/[PLACEHOLDER: ORCID iD]">ORCID</a></li>
+        <li><a href="#contact">Email</a></li>
+      </ul>
+    </div>
+
+    <figure class="fig" aria-labelledby="fig1-cap">
+      <div class="planes">
+        <figure class="plane">
+          <svg id="actual" viewBox="-1.18 -1.18 2.36 2.36" role="img" aria-label="Actual plane: a desired circular orbit offset inside a circular geofence, so the safety margin is narrow on one side and wide on the other."></svg>
+          <figcaption>Actual plane</figcaption>
+        </figure>
+        <div class="map" aria-hidden="true">
+          w = <span style="white-space:nowrap">(z &minus; a) / (1 &minus; az)</span>
+          <span class="arrow">&#x27F6;</span>
+        </div>
+        <figure class="plane">
+          <svg id="transformed" viewBox="-1.18 -1.18 2.36 2.36" role="img" aria-label="Transformed plane: the same orbit and geofence become concentric circles with a uniform safety margin."></svg>
+          <figcaption>Transformed plane</figcaption>
+        </figure>
+      </div>
+      <div class="controls">
+        <label for="offset">Move the orbit off-centre</label>
+        <input type="range" id="offset" min="0" max="0.6" step="0.01" value="0.38" aria-describedby="readout">
+        <button class="pill-btn" type="button" id="pause" aria-pressed="false">Pause</button>
+        <p class="readout" id="readout" aria-live="polite"></p>
+      </div>
+      <p class="fig-caption" id="fig1-cap">
+        <b>Figure 1.</b> The core idea of my thesis. A M&ouml;bius transformation maps a desired orbit (teal) and a geofence (red) that are not concentric onto concentric circles, turning a position-dependent safety margin into a uniform one. A barrier Lyapunov function is designed there, and the control law is expressed back in the actual plane. Schematic; the figure is computed live from the map above.
+      </p>
+    </figure>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= ABOUT ================= -->
+  <section id="about">
+    <div class="wrap sec-head">
+      <h2>About</h2>
+      <div class="sec-body about">
+        <p>
+          I am a postdoctoral researcher at Institute of Science Tokyo, working with [PLACEHOLDER: Prof. name] on [PLACEHOLDER: one-line description of the postdoc project]. My research sits at the intersection of <span class="kw">nonlinear control theory</span>, <span class="kw">optimization</span>, and <span class="kw">learning</span>, with the goal of making autonomous robots and robot teams provably safe in realistic operating conditions.
+        </p>
+        <p>
+          I received my Ph.D. in Control Systems and Automation from IIT Jodhpur in 2025, advised by Prof. Anoop Jain. My thesis introduced a M&ouml;bius-transformation-based barrier Lyapunov framework for robots whose safety margins vary with position, and extended it to phase-coordinated multi-agent systems and flow-field disturbances, with hardware experiments on Crazyflie 2.1 quadrotors and Khepera IV ground robots. Before that, I completed an M.Tech. at NIT Hamirpur and a B.Tech. at Bhilai Institute of Technology, both in Electrical Engineering.
+        </p>
+
+        <h3>Affiliations</h3>
+        <ul class="affil">
+          <li>
+            <span class="when">[PLACEHOLDER: start month] 2026 to present</span>
+            <span class="what">Postdoctoral Researcher</span>
+            <span class="where"><a href="[PLACEHOLDER: lab URL]">[PLACEHOLDER: Lab name]</a>, Institute of Science Tokyo</span>
+          </li>
+          <li>
+            <span class="when">2020 to 2026</span>
+            <span class="what">Ph.D. and Research Associate</span>
+            <span class="where"><a href="[PLACEHOLDER: DSC Lab URL]">DSC Lab</a>, IIT Jodhpur</span>
+          </li>
+        </ul>
+
+        <p class="callout">I welcome collaborations on safe control, multi-agent coordination, and learning-based control, including with students interested in these topics. <a href="#contact">Get in touch</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NEWS ================= -->
+  <section id="news">
+    <div class="wrap sec-head">
+      <h2>News</h2>
+      <div class="sec-body">
+        <p class="news-meta">Last updated [PLACEHOLDER: month year]</p>
+        <!-- Add new items at the top. Items after the sixth get class="more". -->
+        <ul class="news" id="news-list">
+          <li><time>[PLACEHOLDER] 2026</time><span><span class="tag">Position</span>Joined [PLACEHOLDER: Lab name] at Institute of Science Tokyo as a postdoctoral researcher.</span></li>
+          <li><time>May 2026</time><span><span class="tag">Journal</span>Our paper on M&ouml;bius-transformation-based circular motion control in nonconcentric geofences appeared in <i>IEEE Transactions on Automatic Control</i>, vol. 71, no. 5. <a href="https://doi.org/10.1109/TAC.2025.3631525">Paper</a></span></li>
+          <li><time>Jan 2026</time><span><span class="tag">Position</span>Started as a Research Associate at the DSC Lab, IIT Jodhpur, working on safe control under uncertainty with optimization and reinforcement learning.</span></li>
+          <li><time>Dec 2025</time><span><span class="tag">Milestone</span>Completed my Ph.D. at IIT Jodhpur with the thesis <i>Coordination and Control of Robotic Systems under Nonuniform Motion Constraints</i>.</span></li>
+          <li><time>Sep 2025</time><span><span class="tag">Preprint</span>Phase-coordinated multi-agent circular formation control with non-concentric boundary constraints is on arXiv. <a href="https://doi.org/10.48550/arXiv.2509.08534">Preprint</a></span></li>
+          <li><time>Jul 2024</time><span><span class="tag">Talk</span>Presented constrained synchronization of chaotic systems at the American Control Conference 2024.</span></li>
+          <li class="more"><time>May 2024</time><span><span class="tag">Preprint</span>First preprint on stabilizing circular motion within a nonconcentric circular boundary. <a href="https://arxiv.org/abs/2405.06989">arXiv</a></span></li>
+          <li class="more"><time>2024</time><span><span class="tag">Journal</span>Collision avoidance and connectivity preservation with asymmetric time-varying BLFs published in <i>Systems &amp; Control Letters</i>. <a href="https://doi.org/10.1016/j.sysconle.2023.105672">Paper</a></span></li>
+          <li class="more"><time>2023</time><span><span class="tag">Journal</span>Bounded voltage regulation in DC microgrids published in <i>IEEE Control Systems Letters</i>.</span></li>
+          <li class="more"><time>Jun 2022</time><span><span class="tag">Talk</span>Presented time-varying distance-constrained formation maneuver control at the American Control Conference 2022. <a href="https://doi.org/10.23919/ACC53348.2022.9867847">Paper</a></span></li>
+          <li class="more"><time>Dec 2021</time><span><span class="tag">Award</span>Best Student Paper Award finalist at the Seventh Indian Control Conference for distance-constrained formation control using asymmetric BLFs.</span></li>
+        </ul>
+        <button class="pill-btn news-toggle" type="button" id="news-toggle" aria-expanded="false" aria-controls="news-list">Show all news</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RESEARCH ================= -->
+  <section id="research">
+    <div class="wrap sec-head">
+      <h2>Research</h2>
+      <div class="sec-body">
+        <p class="intro">
+          Robots rarely operate in symmetric, obstacle-free space. A drone circling inside a geofence, a patrol team covering a border with high-priority zones, or an underwater vehicle pushed by currents all face constraints that vary with position and time. My work develops <span class="kw">barrier Lyapunov</span> and <span class="kw">control barrier function</span> methods that handle this variability with formal guarantees, and validates them on hardware.
+        </p>
+
+        <h3>Research highlights</h3>
+        <ul class="hl">
+          <li>
+            <div class="thumb" aria-hidden="true"><svg data-thumb="geofence" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div>
+              <h4>Geofencing with nonconcentric boundaries</h4>
+              <p>Circular motion control of a unicycle robot inside a geofence that is not centred on the desired orbit. A M&ouml;bius transformation maps the uneven margin to a uniform one, where the problem becomes either trajectory-constraining or obstacle-avoidance; the resulting control law depends only on actual-plane parameters.</p>
+              <div class="meta"><span class="venue">IEEE Trans. Automatic Control, 2026</span><span>Khepera IV and Crazyflie 2.1</span>
+                <span class="chips"><a href="https://doi.org/10.1109/TAC.2025.3631525">Paper</a><a href="https://arxiv.org/abs/2405.06989">arXiv</a><a href="https://github.com/[PLACEHOLDER]">Code</a></span></div>
+            </div>
+          </li>
+          <li>
+            <div class="thumb" aria-hidden="true"><svg data-thumb="phase" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div>
+              <h4>Phase-coordinated multi-agent motion</h4>
+              <p>M&ouml;bius phase-shift coupled synchronization and balancing. Agents evenly spaced in the transformed plane become unevenly spaced in the actual plane, so a team can concentrate coverage in regions that need intensified monitoring, such as zones near critical infrastructure on a patrolled border.</p>
+              <div class="meta"><span class="venue">Under review, IEEE TAC</span><span>Four-robot Khepera IV experiments</span>
+                <span class="chips"><a href="https://doi.org/10.48550/arXiv.2509.08534">arXiv</a><a href="https://github.com/[PLACEHOLDER]">Code</a></span></div>
+            </div>
+          </li>
+          <li>
+            <div class="thumb" aria-hidden="true"><svg data-thumb="flow" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div>
+              <h4>Coordination in spatio-temporal flow fields</h4>
+              <p>Extension to agents moving through smooth, bounded flows such as wind or ocean currents. Flow-induced motion enters the inertial-frame dynamics, and flow-aware BLF control laws keep the formation inside the boundary.</p>
+              <div class="meta"><span class="venue">Under review</span><span>Simulation</span>
+                <span class="chips"><a href="[PLACEHOLDER]">Preprint</a></span></div>
+            </div>
+          </li>
+          <li>
+            <div class="thumb" aria-hidden="true"><svg data-thumb="formation" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div>
+              <h4>Formation control with collision avoidance and connectivity</h4>
+              <p>Distributed distance-based formation control using asymmetric time-varying BLFs. Agents are disks of different radii; the asymmetric barrier prevents collisions as agents approach and preserves communication links as they separate, with analytical bounds on all post-design signals.</p>
+              <div class="meta"><span class="venue">Systems &amp; Control Letters, 2024; ACC 2022; ICC 2021</span>
+                <span class="chips"><a href="https://doi.org/10.1016/j.sysconle.2023.105672">Paper</a><a href="https://github.com/[PLACEHOLDER]">Code</a></span></div>
+            </div>
+          </li>
+          <li>
+            <div class="thumb" aria-hidden="true"><svg data-thumb="funnel" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div>
+              <h4>Constrained control beyond robotics</h4>
+              <p>The same barrier ideas keep signals inside prescribed, possibly asymmetric bounds in other systems: bounded voltage regulation in DC microgrids with uncertain load current, and constrained synchronization of chaotic systems with parametric uncertainty.</p>
+              <div class="meta"><span class="venue">IEEE Control Systems Letters, 2023; ACC 2024</span>
+                <span class="chips"><a href="[PLACEHOLDER]">L-CSS paper</a><a href="[PLACEHOLDER]">ACC paper</a></span></div>
+            </div>
+          </li>
+        </ul>
+
+        <h3>Current work</h3>
+        <ul class="hl">
+          <li>
+            <div class="thumb" aria-hidden="true"><svg data-thumb="circumnav" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div>
+              <h4>Safe circumnavigation with CBF/CLF-QP and reinforcement learning</h4>
+              <ul class="focus-list">
+                <li>Safe navigation in uncertain, obstacle-cluttered environments combining CBF/CLF quadratic programs with reinforcement learning (PPO).</li>
+                <li>Robust multi-agent circumnavigation under bounded disturbances and unknown dynamic obstacles.</li>
+                <li>Resilient formation control: RL-based detection and optimization-based mitigation of false data injection attacks.</li>
+                <li>[PLACEHOLDER: current postdoctoral project at Institute of Science Tokyo]</li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DEMONSTRATIONS ================= -->
+  <section id="demos">
+    <div class="wrap sec-head">
+      <h2>Experiments</h2>
+      <div class="sec-body">
+        <p class="intro">Hardware validation of the controllers above.</p>
+        <!--
+          To add a video, replace the placeholder text inside a .frame with, for example:
+            <iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID" title="Khepera IV geofencing experiment"
+                    allow="picture-in-picture; fullscreen" loading="lazy"></iframe>
+          and add class "has-media" to that .frame. A GIF also works: <img src="demo.gif" alt="...">
+        -->
+        <div class="demos">
+          <figure class="demo">
+            <div class="frame">[PLACEHOLDER: video or GIF]</div>
+            <figcaption><b>Circular motion in a nonconcentric geofence</b><span>Khepera IV ground robot, motion capture with ROS</span></figcaption>
+          </figure>
+          <figure class="demo">
+            <div class="frame">[PLACEHOLDER: video or GIF]</div>
+            <figcaption><b>M&ouml;bius phase-shift coupled balancing</b><span>Four Khepera IV robots</span></figcaption>
+          </figure>
+          <figure class="demo">
+            <div class="frame">[PLACEHOLDER: video or GIF]</div>
+            <figcaption><b>[PLACEHOLDER: experiment title]</b><span>Crazyflie 2.1 quadrotor</span></figcaption>
+          </figure>
+        </div>
+        <p class="setup">Experiments run in a motion-capture arena: overhead cameras with Qualisys Track Manager provide each robot's position and heading, and control commands are sent over ROS.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PUBLICATIONS ================= -->
+  <section id="publications">
+    <div class="wrap sec-head">
+      <h2>Publications</h2>
+      <div class="sec-body">
+        <p class="intro">Full, current list on <a href="https://scholar.google.com/citations?user=Gc7Lfs0AAAAJ&amp;hl=en">Google Scholar</a>.</p>
+
+        <ul class="filter" aria-label="Filter publications by topic">
+          <li><button type="button" data-filter="all" aria-pressed="true">All</button></li>
+          <li><button type="button" data-filter="geofence" aria-pressed="false">Geofencing and coordination</button></li>
+          <li><button type="button" data-filter="formation" aria-pressed="false">Formation control</button></li>
+          <li><button type="button" data-filter="other" aria-pressed="false">Microgrids and chaotic systems</button></li>
+        </ul>
+
+        <div class="pub-group">
+          <h3>Journal articles</h3>
+          <ol class="pubs">
+            <li class="pub" data-n="1" data-topic="geofence">
+              <span class="title">M&ouml;bius-Transformation-Based Circular Motion Control for Unicycle Robots in Nonconcentric Circular Geofences</span>
+              <span class="me">S. Singh</span> and A. Jain. <span class="where">IEEE Transactions on Automatic Control</span>, vol. 71, no. 5, pp. 2918&ndash;2933, 2026.
+              <span class="chips"><a href="https://doi.org/10.1109/TAC.2025.3631525">DOI</a><a href="https://arxiv.org/abs/2405.06989">arXiv</a></span>
+            </li>
+            <li class="pub" data-n="2" data-topic="formation">
+              <span class="title">Collision Avoidance and Connectivity Preservation using Asymmetric Barrier Lyapunov Function with Time-Varying Distance-Constraints</span>
+              <span class="me">S. Singh</span> and A. Jain. <span class="where">Systems &amp; Control Letters</span>, vol. 183, 105672, 2024.
+              <span class="chips"><a href="https://doi.org/10.1016/j.sysconle.2023.105672">DOI</a></span>
+            </li>
+            <li class="pub" data-n="3" data-topic="other">
+              <span class="title">Bounded Voltage Regulation in a Direct Current Microgrid using Barrier Lyapunov Function with Uncertain Load Current</span>
+              <span class="me">S. Singh</span>, V. Vaishnav, A. Jain, and D. Sharma. <span class="where">IEEE Control Systems Letters</span>, vol. 7, pp. 991&ndash;996, 2023.
+              <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
+            </li>
+          </ol>
+        </div>
+
+        <div class="pub-group">
+          <h3>Conference papers</h3>
+          <ol class="pubs">
+            <li class="pub" data-n="4" data-topic="other">
+              <span class="title">Constrained Synchronization of Drive and Response Chaotic Systems with Parametric Uncertainty using Barrier Lyapunov Function</span>
+              <span class="me">S. Singh</span> and A. Jain. <span class="where">American Control Conference (ACC)</span>, pp. 2476&ndash;2481, 2024.
+              <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
+            </li>
+            <li class="pub" data-n="5" data-topic="formation">
+              <span class="title">Time-Varying Distance-Constrained Formation Maneuver Control with Guaranteed Prescribed Performance for Mobile Agents</span>
+              <span class="me">S. Singh</span> and A. Jain. <span class="where">American Control Conference (ACC)</span>, pp. 5134&ndash;5139, 2022.
+              <span class="chips"><a href="https://doi.org/10.23919/ACC53348.2022.9867847">DOI</a></span>
+            </li>
+            <li class="pub" data-n="6" data-topic="formation">
+              <span class="title">Distance-Constrained Formation Control of Multi-Agent Systems Using Asymmetric Barrier Lyapunov Function</span>
+              <span class="me">S. Singh</span> and A. Jain. <span class="where">Indian Control Conference (ICC)</span>, pp. 395&ndash;399, 2021.
+              <span class="note">Best Student Paper Award finalist.</span>
+              <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
+            </li>
+          </ol>
+        </div>
+
+        <div class="pub-group">
+          <h3>Under review</h3>
+          <ol class="pubs">
+            <li class="pub" data-n="7" data-topic="geofence">
+              <span class="title">Phase-Coordinated Multi-Agent Circular Formation Control with Non-Concentric Boundary Constraints</span>
+              <span class="me">S. Singh</span> and A. Jain. Under review, <span class="where">IEEE Transactions on Automatic Control</span>.
+              <span class="chips"><a href="https://doi.org/10.48550/arXiv.2509.08534">arXiv</a></span>
+            </li>
+            <li class="pub" data-n="8" data-topic="geofence">
+              <span class="title">Nonconcentric Boundary-Constrained Circular Formation Control for Multi-Agent Systems in the Presence of Spatio-Temporal Flow Fields</span>
+              <span class="me">S. Singh</span> and A. Jain. Under review.
+              <span class="chips"><a href="[PLACEHOLDER]">Preprint</a></span>
+            </li>
+          </ol>
+        </div>
+
+        <p class="empty-note" id="pub-empty" hidden>No papers in this topic yet.</p>
+
+        <details id="earlier">
+          <summary>Earlier work from my M.Tech. (2020)</summary>
+          <ol class="pubs">
+            <li class="pub" data-n="9" data-topic="other">
+              <span class="title">Synchronization of MLS Chaotic System Using Adaptive Backstepping Control</span>
+              <span class="me">S. Singh</span> and H. Handa. <span class="where">7th International Conference on Signal Processing and Integrated Networks (SPIN)</span>, 2020.
+              <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
+            </li>
+            <li class="pub" data-n="10" data-topic="other">
+              <span class="title">Synchronization of Hyperchaotic Rossler System using Backstepping and Sliding Mode Control</span>
+              <span class="me">S. Singh</span>, A. Tiwari, and H. Handa. <span class="where">2nd International Conference on Innovative Mechanisms for Industry Applications (ICIMIA)</span>, 2020.
+              <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
+            </li>
+          </ol>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CODE ================= -->
+  <section id="code">
+    <div class="wrap sec-head">
+      <h2>Code</h2>
+      <div class="sec-body">
+        <p class="intro">MATLAB and Python implementations accompanying my papers.</p>
+        <ul class="repos">
+          <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>M&ouml;bius-BLF circular motion control in nonconcentric geofences</span><span class="rel">IEEE TAC 2026</span></li>
+          <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>Phase-coordinated synchronization and balancing under boundary constraints</span><span class="rel">Under review</span></li>
+          <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>Asymmetric time-varying BLF formation control with collision avoidance and connectivity preservation</span><span class="rel">SCL 2024</span></li>
+          <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>CBF/CLF-QP safe control and circumnavigation</span><span class="rel">[PLACEHOLDER]</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BACKGROUND ================= -->
+  <section id="background">
+    <div class="wrap sec-head">
+      <h2>Background</h2>
+      <div class="sec-body">
+        <h3>Education</h3>
+        <ol class="timeline">
+          <li>
+            <span class="yr">2020 to 2025</span>
+            <span class="deg">Ph.D., Control Systems and Automation</span>
+            <span class="inst">Indian Institute of Technology Jodhpur</span>
+            <span class="thesis">Coordination and Control of Robotic Systems under Nonuniform Motion Constraints. Supervisor: Prof. Anoop Jain.</span>
+          </li>
+          <li>
+            <span class="yr">2018 to 2020</span>
+            <span class="deg">M.Tech., Electrical Engineering</span>
+            <span class="inst">National Institute of Technology Hamirpur</span>
+            <span class="thesis">Synchronization of Chaotic Systems Using Adaptive Backstepping Control. Supervisor: Prof. Himesh Handa.</span>
+          </li>
+          <li>
+            <span class="yr">2014 to 2018</span>
+            <span class="deg">B.Tech., Electrical Engineering</span>
+            <span class="inst">Bhilai Institute of Technology, Durg</span>
+          </li>
+        </ol>
+
+        <div class="cols">
+          <div>
+            <h3>Methods</h3>
+            <p>Lyapunov and barrier Lyapunov analysis, CBF/CLF quadratic programs, graph-theoretic multi-agent design, reinforcement learning (PPO, actor&ndash;critic), POMDPs.</p>
+          </div>
+          <div>
+            <h3>Platforms and software</h3>
+            <p>Crazyflie 2.1, Khepera IV, TurtleBot3; motion capture with ROS/ROS2; MATLAB/Simulink, Python, Gazebo, LaTeX.</p>
+          </div>
+          <div>
+            <h3>Reviewing</h3>
+            <p>IEEE Transactions on Automatic Control, IEEE Control Systems Letters, IEEE Transactions on Cybernetics, IEEE Transactions on Network Science and Engineering, Nonlinear Dynamics, Scientific Reports; IEEE CDC, IFAC ACA 2022, Indian Control Conference 2025, Advances in Robotics 2025.</p>
+          </div>
+          <div>
+            <h3>Teaching assistance</h3>
+            <p>Control Systems, Mobile Robots, Introduction to Cyber-Physical Systems, Security in CPS, Signals and Systems, and others at IIT Jodhpur (2020 to 2025).</p>
+          </div>
+        </div>
+
+        <h3>Awards</h3>
+        <ul class="plain">
+          <li>Best Student Paper Award finalist, Indian Control Conference, 2021</li>
+          <li>GATE qualified, Electrical Engineering, 2018 and 2019</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <div>
+      <p class="contact-line">Open to collaborations on safe control, multi-agent systems, and learning-based control.</p>
+      <!-- The address is assembled by the script so simple scrapers cannot read it. -->
+      <p><a id="email" href="#contact" data-u="shubhamrathod2810" data-d="gmail.com">shubhamrathod2810 [at] gmail [dot] com</a></p>
+      <p class="small">Tokyo, Japan</p>
+      <p class="small">Last updated [PLACEHOLDER: month year]</p>
+    </div>
+    <button class="pill-btn" type="button" id="theme">Switch to dark</button>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Helpers ---------- */
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function pathFrom(pts, close) {
+    var s = "";
+    for (var i = 0; i < pts.length; i++) s += (i ? "L" : "M") + pts[i][0].toFixed(4) + " " + (-pts[i][1]).toFixed(4);
+    return close ? s + "Z" : s;
+  }
+  function mobius(a) {           // transformed w -> actual z
+    return function (re, im) {
+      var nr = re + a, ni = im, dr = 1 + a * re, di = a * im, d = dr * dr + di * di;
+      return [(nr * dr + ni * di) / d, (ni * dr - nr * di) / d];
+    };
+  }
+  function ident(re, im) { return [re, im]; }
+  function circle(r, map, n, cx, cy) {
+    var pts = []; cx = cx || 0; cy = cy || 0;
+    for (var i = 0; i < n; i++) { var t = 2 * Math.PI * i / n; pts.push(map(cx + r * Math.cos(t), cy + r * Math.sin(t))); }
+    return pts;
+  }
+  function ray(theta, map, n) {
+    var pts = [];
+    for (var i = 0; i <= n; i++) { var r = i / n; pts.push(map(r * Math.cos(theta), r * Math.sin(theta))); }
+    return pts;
+  }
+  function arrow(g, x, y, dx, dy, cls) {
+    var x2 = x + dx, y2 = y + dy, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, h = 0.06;
+    el("path", { d: pathFrom([[x, y], [x2, y2]]) + pathFrom([[x2 - h * ux + h * 0.6 * uy, y2 - h * uy - h * 0.6 * ux], [x2, y2], [x2 - h * ux - h * 0.6 * uy, y2 - h * uy + h * 0.6 * ux]]), "class": cls }, g);
+  }
+  function geofenceScene(g, map, R0) {
+    el("path", { d: pathFrom(circle(1, map, 200), true) + pathFrom(circle(R0, map, 200), true), "class": "zone" }, g);
+    el("path", { d: pathFrom(circle(1, map, 200), true), "class": "fence" }, g);
+    el("path", { d: pathFrom(circle(R0, map, 200), true), "class": "orbit" }, g);
+  }
+
+  /* ---------- Hero figure (interactive) ---------- */
+  var R0 = 0.62, a = 0.38;
+  var actual = document.getElementById("actual"), transformed = document.getElementById("transformed");
+  var slider = document.getElementById("offset"), readout = document.getElementById("readout");
+
+  function drawPlane(svg, map, labels) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var g = el("g", {}, svg);
+    [0.2, 0.4, 0.8].forEach(function (r) { el("path", { d: pathFrom(circle(r, map, 180), true), "class": "grid" }, g); });
+    for (var k = 0; k < 12; k++) el("path", { d: pathFrom(ray(k * Math.PI / 6, map, 60)), "class": "grid" }, g);
+    geofenceScene(g, map, R0);
+    var zR = map(R0, 0)[0], zL = map(-R0, 0)[0];
+    [[zR, 1], [-1, zL]].forEach(function (p) {
+      el("line", { x1: p[0], y1: 0, x2: p[1], y2: 0, "class": "gap" }, g);
+      [p[0], p[1]].forEach(function (x) { el("line", { x1: x, y1: -0.035, x2: x, y2: 0.035, "class": "gap" }, g); });
+    });
+    labels.forEach(function (l) {
+      var t = el("text", { x: l.x, y: l.y, "text-anchor": l.anchor, "class": "gap-lbl" }, g); t.textContent = l.text;
+    });
+    return {
+      trail: el("path", { "class": "trail" }, svg),
+      dot: el("circle", { r: 0.045, "class": "agent" }, svg),
+      ring: el("circle", { r: 0.045, "class": "agent-ring" }, svg)
+    };
+  }
+
+  var agA, agT, phase = 2.2;
+  function rebuild() {
+    var map = mobius(a);
+    var zR = map(R0, 0)[0], zL = map(-R0, 0)[0], narrow = 1 - zR, wide = 1 + zL;
+    var uneven = Math.abs(wide - narrow) > 0.02;
+    agA = drawPlane(actual, map, uneven
+      ? [{ x: zR - 0.06, y: 0.035, anchor: "end", text: "narrow" }, { x: (zL - 1) / 2, y: -0.08, anchor: "middle", text: "wide" }]
+      : [{ x: 0, y: 0.035, anchor: "middle", text: "uniform" }]);
+    agT = drawPlane(transformed, ident, [{ x: 0, y: 0.035, anchor: "middle", text: "uniform" }]);
+    readout.innerHTML = (uneven
+      ? "Margin in the actual plane varies from <b>" + Math.min(narrow, wide).toFixed(2) + "</b> to <b>" + Math.max(narrow, wide).toFixed(2) + "</b>"
+      : "Orbit centred: the margin is already uniform") +
+      " (fence radius 1). In the transformed plane it is <b>" + (1 - R0).toFixed(2) + "</b> everywhere.";
+    render(phase);
+  }
+  function render(theta) {
+    var map = mobius(a), pA = [], pT = [];
+    for (var i = 0; i <= 28; i++) {
+      var t = theta - 0.9 * i / 28, re = R0 * Math.cos(t), im = R0 * Math.sin(t);
+      pT.push([re, im]); pA.push(map(re, im));
+    }
+    [[agA, pA], [agT, pT]].forEach(function (p) {
+      p[0].trail.setAttribute("d", pathFrom(p[1]));
+      ["dot", "ring"].forEach(function (k) { p[0][k].setAttribute("cx", p[1][0][0]); p[0][k].setAttribute("cy", -p[1][0][1]); });
+    });
+  }
+
+  if (actual && transformed) {
+    rebuild();
+    slider.addEventListener("input", function () { a = parseFloat(slider.value); rebuild(); });
+
+    var running = !reduceMotion, last = null, raf = null, btn = document.getElementById("pause");
+    function tick(ts) {
+      if (last !== null) phase += 2 * Math.PI * (ts - last) / 14000;
+      last = ts; render(phase);
+      raf = running ? requestAnimationFrame(tick) : null;
+    }
+    if (running) raf = requestAnimationFrame(tick);
+    btn.addEventListener("click", function () {
+      running = !running;
+      btn.textContent = running ? "Pause" : "Play";
+      btn.setAttribute("aria-pressed", String(!running));
+      if (running) { last = null; raf = requestAnimationFrame(tick); }
+      else if (raf) { cancelAnimationFrame(raf); raf = null; }
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden && raf) { cancelAnimationFrame(raf); raf = null; }
+      else if (!document.hidden && running && !raf) { last = null; raf = requestAnimationFrame(tick); }
+    });
+  }
+
+  /* ---------- Research thumbnails ---------- */
+  var thumbs = {
+    geofence: function (svg) {
+      var m = mobius(0.38); geofenceScene(svg, m, R0);
+      var pts = [];
+      for (var i = 0; i <= 220; i++) {
+        var s = i / 220, th = -2.4 + 9 * s, r = R0 + 0.3 * Math.exp(-4 * s);
+        pts.push(m(r * Math.cos(th), r * Math.sin(th)));
+      }
+      el("path", { d: pathFrom(pts), "class": "path" }, svg);
+      var e = pts[pts.length - 1]; el("circle", { cx: e[0], cy: -e[1], r: 0.07, "class": "agent" }, svg);
+    },
+    phase: function (svg) {
+      var m = mobius(0.38); geofenceScene(svg, m, R0);
+      for (var k = 0; k < 5; k++) {
+        var th = 0.5 + 2 * Math.PI * k / 5, p = m(R0 * Math.cos(th), R0 * Math.sin(th));
+        el("circle", { cx: p[0], cy: -p[1], r: 0.075, "class": "agent" }, svg);
+      }
+    },
+    flow: function (svg) {
+      for (var i = -3; i <= 3; i++) for (var j = -3; j <= 3; j++) {
+        var x = i * 0.3, y = j * 0.3;
+        if (x * x + y * y > 0.95) continue;
+        var u = 0.7 + 0.3 * Math.sin(2.2 * y), v = 0.35 * Math.cos(2 * x), L = Math.hypot(u, v);
+        arrow(svg, x - 0.08 * u / L, y - 0.08 * v / L, 0.16 * u / L, 0.16 * v / L, "flow");
+      }
+      var m = mobius(0.38);
+      el("path", { d: pathFrom(circle(1, m, 200), true), "class": "fence" }, svg);
+      el("path", { d: pathFrom(circle(R0, m, 200), true), "class": "orbit" }, svg);
+      [0.3, 2.4, 4.4].forEach(function (th) { var p = m(R0 * Math.cos(th), R0 * Math.sin(th)); el("circle", { cx: p[0], cy: -p[1], r: 0.07, "class": "agent" }, svg); });
+    },
+    formation: function (svg) {
+      var P = [[0, 0, 0.15], [0.62, 0.12, 0.11], [-0.34, 0.55, 0.13], [-0.3, -0.56, 0.1], [0.42, -0.5, 0.12]];
+      [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [3, 4], [1, 4]].forEach(function (e) {
+        el("line", { x1: P[e[0]][0], y1: -P[e[0]][1], x2: P[e[1]][0], y2: -P[e[1]][1], "class": "edge" }, svg);
+      });
+      el("circle", { cx: 0, cy: 0, r: 0.9, "class": "range" }, svg);
+      el("circle", { cx: 0, cy: 0, r: 0.34, "class": "bound" }, svg);
+      P.forEach(function (p) { el("circle", { cx: p[0], cy: -p[1], r: p[2], "class": "body" }, svg); });
+    },
+    funnel: function (svg) {
+      el("line", { x1: -0.95, y1: 0, x2: 0.98, y2: 0, "class": "axis" }, svg);
+      el("line", { x1: -0.95, y1: -0.95, x2: -0.95, y2: 0.95, "class": "axis" }, svg);
+      var up = [], lo = [], sg = [];
+      for (var i = 0; i <= 160; i++) {
+        var t = i / 160, x = -0.95 + 1.9 * t, E = Math.exp(-2.5 * t);
+        up.push([x, 0.8 * E + 0.12]); lo.push([x, -(0.6 * E + 0.14)]);
+        sg.push([x, 0.65 * Math.exp(-2.2 * t) * Math.cos(14 * t)]);
+      }
+      el("path", { d: pathFrom(up), "class": "bound" }, svg);
+      el("path", { d: pathFrom(lo), "class": "bound" }, svg);
+      el("path", { d: pathFrom(sg), "class": "signal" }, svg);
+    },
+    circumnav: function (svg) {
+      var obs = [0.8, 3.9], R = 0.6, pts = [];
+      for (var i = 0; i <= 240; i++) {
+        var th = 2 * Math.PI * i / 240, r = R;
+        obs.forEach(function (o) { var d = Math.atan2(Math.sin(th - o), Math.cos(th - o)); r -= 0.22 * Math.exp(-(d * d) / 0.12); });
+        pts.push([r * Math.cos(th), r * Math.sin(th)]);
+      }
+      el("circle", { cx: 0, cy: 0, r: R, "class": "grid" }, svg);
+      obs.forEach(function (o) { el("circle", { cx: 0.72 * Math.cos(o), cy: -0.72 * Math.sin(o), r: 0.17, "class": "obstacle" }, svg); });
+      el("path", { d: pathFrom(pts, true), "class": "path" }, svg);
+      el("path", { d: "M-0.07 0H0.07M0 -0.07V0.07", "class": "gap", style: "stroke-width:0.03" }, svg);
+      var p = pts[150]; el("circle", { cx: p[0], cy: -p[1], r: 0.07, "class": "agent" }, svg);
+    }
+  };
+  Array.prototype.forEach.call(document.querySelectorAll("svg[data-thumb]"), function (svg) {
+    var f = thumbs[svg.getAttribute("data-thumb")]; if (f) f(svg);
+  });
+
+  /* ---------- News toggle ---------- */
+  var newsList = document.getElementById("news-list"), newsBtn = document.getElementById("news-toggle");
+  if (newsList && newsBtn) {
+    if (!newsList.querySelector("li.more")) newsBtn.hidden = true;
+    newsBtn.addEventListener("click", function () {
+      var open = newsList.classList.toggle("expanded");
+      newsBtn.textContent = open ? "Show recent news only" : "Show all news";
+      newsBtn.setAttribute("aria-expanded", String(open));
+    });
+  }
+
+  /* ---------- Publication filter ---------- */
+  var buttons = document.querySelectorAll(".filter button");
+  Array.prototype.forEach.call(buttons, function (b) {
+    b.addEventListener("click", function () {
+      var f = b.getAttribute("data-filter"), any = false;
+      Array.prototype.forEach.call(buttons, function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      Array.prototype.forEach.call(document.querySelectorAll("#publications .pub"), function (p) {
+        p.hidden = !(f === "all" || p.getAttribute("data-topic") === f);
+      });
+      Array.prototype.forEach.call(document.querySelectorAll("#publications .pub-group"), function (g) {
+        var vis = g.querySelectorAll(".pub:not([hidden])").length > 0; g.hidden = !vis; if (vis) any = true;
+      });
+      var earlier = document.getElementById("earlier");
+      if (earlier) {
+        var ev = earlier.querySelectorAll(".pub:not([hidden])").length > 0;
+        earlier.hidden = !ev; if (ev) any = true;
+        if (f === "other") earlier.open = true;
+      }
+      document.getElementById("pub-empty").hidden = any;
+    });
+  });
+
+  /* ---------- Email ---------- */
+  var mail = document.getElementById("email");
+  if (mail) {
+    var addr = mail.getAttribute("data-u") + "@" + mail.getAttribute("data-d");
+    mail.href = "mailto:" + addr; mail.textContent = addr;
+  }
+
+  /* ---------- Current section in nav ---------- */
+  if ("IntersectionObserver" in window) {
+    var navLinks = {};
+    Array.prototype.forEach.call(document.querySelectorAll(".nav ul a"), function (l) { navLinks[l.getAttribute("href").slice(1)] = l; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting && navLinks[en.target.id]) {
+          for (var k in navLinks) navLinks[k].removeAttribute("aria-current");
+          navLinks[en.target.id].setAttribute("aria-current", "true");
+        }
+      });
+    }, { rootMargin: "-40% 0px -55% 0px" });
+    Array.prototype.forEach.call(document.querySelectorAll("main section, footer"), function (s) { io.observe(s); });
+  }
+
+  /* ---------- Theme toggle ---------- */
+  var root = document.documentElement, themeBtn = document.getElementById("theme");
+  function isDark() {
+    var t = root.getAttribute("data-theme");
+    if (t) return t === "dark";
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function label() { themeBtn.textContent = isDark() ? "Switch to light" : "Switch to dark"; }
+  try { var s = localStorage.getItem("theme"); if (s === "light" || s === "dark") root.setAttribute("data-theme", s); } catch (e) {}
+  label();
+  themeBtn.addEventListener("click", function () {
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("theme", next); } catch (e) {}
+    label();
+  });
+})();
+</script>
+</body>
+</html>
