@@ -13,12 +13,14 @@
   MAINTENANCE
   • Search for [PLACEHOLDER] and replace every instance.
   • News: add a new <li> at the TOP of the news list and update "Last updated".
-    Only the first 6 items show until the visitor clicks "Show all news".
+    Only the first 6 items show until the visitor clicks "Show all news";
+    items after the sixth get class="more".
   • Publications: copy one <li class="pub" ...> block. Set data-topic to
-    geofence, formation, or other so the topic filter works.
-  • Demonstrations: replace a placeholder frame with a YouTube embed (see the
-    comment inside the Demonstrations section).
+    geofence, formation, learning, or other so the topic filter works.
+  • Experiments: each video is a YouTube embed; swap the VIDEO_ID in the src to change it.
   • Colours live in :root at the top of the <style> block.
+  • Math labels are typeset with KaTeX (loaded from jsDelivr); plain-text
+    fallbacks are shown if it cannot load.
   • All figures are drawn by the script at the bottom; no image files needed.
 -->
 <html lang="en">
@@ -26,7 +28,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Shubham Singh | Safety-critical control of robotic and multi-agent systems</title>
-<meta name="description" content="Shubham Singh, postdoctoral researcher at Institute of Science Tokyo. Safety-critical control, barrier Lyapunov functions, Möbius-transformation-based geofencing, and multi-agent coordination.">
+<meta name="description" content="Shubham Singh, postdoctoral researcher at Institute of Science Tokyo. Safety-critical control, barrier Lyapunov functions, Möbius-transformation-based geofencing, multi-agent coordination, and learning-based safe control.">
 <meta name="author" content="Shubham Singh">
 <meta property="og:title" content="Shubham Singh | Control Systems and Robotics">
 <meta property="og:description" content="Safety-critical control of robotic and multi-agent systems under nonuniform motion constraints.">
@@ -35,6 +37,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 
 <style>
   /* ---------- Tokens ---------- */
@@ -112,7 +116,6 @@
     font-family: var(--sans); font-size: 0.9rem;
   }
   .skip:focus { left: 0.75rem; }
-  .sans { font-family: var(--sans); }
 
   /* ---------- Navigation ---------- */
   .nav {
@@ -164,12 +167,24 @@
 
   /* ---------- Hero figure ---------- */
   .fig { margin: 0; }
-  .planes { display: grid; align-items: center; gap: 0.5rem; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
-  .plane { margin: 0; text-align: center; }
+  .planes { display: grid; align-items: start; gap: 0.5rem; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .plane { margin: 0; text-align: center; min-width: 0; }
   .plane svg { display: block; width: 100%; height: auto; aspect-ratio: 1; overflow: visible; }
   .plane figcaption { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); margin-top: 0.35rem; }
-  .map { font-style: italic; font-size: 1rem; text-align: center; line-height: 1.3; padding: 0 0.25rem; }
-  .map .arrow { display: block; font-style: normal; color: var(--muted); font-size: 1.4rem; line-height: 1; margin-top: 0.3rem; }
+  .legend {
+    list-style: none; margin: 0.45rem 0 0; padding: 0; display: inline-flex; flex-direction: column; gap: 0.2rem;
+    text-align: left; font-family: var(--serif); font-size: 0.95rem; color: var(--ink);
+  }
+  .legend li { display: flex; align-items: center; gap: 0.45rem; }
+  .legend .katex { font-size: 1em; }
+  .key { flex: none; width: 1.2rem; border-top: 2px solid; }
+  .key.orbit-key { border-color: var(--orbit); border-top-style: dashed; }
+  .key.fence-key { border-color: var(--fence); }
+  .map { text-align: center; line-height: 1.3; padding: 0 0.25rem; align-self: center; margin-top: -2.5rem; }
+  .map .tex { display: block; }
+  .map .katex-display { margin: 0; }
+  .map .beta { font-size: 0.95rem; color: var(--muted); margin-top: 0.3rem; }
+  .map .arrow { display: block; color: var(--muted); font-size: 1.4rem; line-height: 1; margin-top: 0.4rem; }
   .controls {
     display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.2rem;
     margin-top: 1rem; padding: 0.75rem 1rem; border: 1px solid var(--rule); border-radius: 10px;
@@ -179,6 +194,7 @@
   .controls input[type="range"] { flex: 1 1 10rem; accent-color: var(--orbit); min-width: 8rem; }
   .readout { flex: 1 1 100%; margin: 0; }
   .readout b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .readout i { font-family: var(--serif); font-size: 1.05em; }
   .pill-btn {
     font-family: var(--sans); font-size: 0.8rem; color: var(--muted); background: transparent;
     border: 1px solid var(--rule); border-radius: 999px; padding: 0.3rem 0.75rem; cursor: pointer;
@@ -205,7 +221,10 @@
   svg .range    { fill: none; stroke: var(--orbit); stroke-width: 0.012; stroke-dasharray: 0.04 0.03; }
   svg .axis     { stroke: var(--muted); stroke-width: 0.012; }
   svg .bound    { fill: none; stroke: var(--fence); stroke-width: 0.02; }
+  svg .bound-dash { fill: none; stroke: var(--fence); stroke-width: 0.018; stroke-dasharray: 0.05 0.035; }
   svg .signal   { fill: none; stroke: var(--orbit); stroke-width: 0.022; }
+  svg .bar      { fill: var(--orbit); opacity: 0.85; }
+  svg .band     { fill: var(--margin); }
 
   /* ---------- Sections ---------- */
   section { padding: clamp(3rem, 6.5vw, 4.75rem) 0; border-bottom: 1px solid var(--rule); }
@@ -254,7 +273,7 @@
   .thumb svg { display: block; width: 100%; height: 100%; overflow: hidden; }
   .hl h4 { font-size: 1.22rem; font-weight: 600; margin: 0 0 0.35rem; line-height: 1.3; }
   .hl p { margin: 0 0 0.6rem; max-width: var(--measure); }
-  .hl .meta { font-family: var(--sans); font-size: 0.84rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center; }
+  .hl .meta { font-family: var(--sans); font-size: 0.84rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center; margin-top: 0.4rem; }
   .hl .venue { color: var(--ink); font-weight: 500; }
   .chips { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
   .chips a { font-family: var(--sans); font-size: 0.78rem; padding: 0.1rem 0.55rem; border: 1px solid var(--rule); border-radius: 999px; text-decoration: none; }
@@ -265,7 +284,7 @@
   .focus-list li { margin-bottom: 0.55rem; padding-left: 0.3rem; }
   .focus-list li::marker { color: var(--orbit); }
 
-  /* Demonstrations */
+  /* Experiments */
   .demos { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.6rem; }
   .demo { margin: 0; }
   .frame {
@@ -275,10 +294,11 @@
     font-family: var(--sans); font-size: 0.82rem; color: var(--muted);
   }
   .frame iframe, .frame video { width: 100%; height: 100%; border: 0; display: block; }
-  .frame.has-media { padding: 0; border-style: solid; }
+  .frame.has-media { padding: 0; border: 1px solid var(--rule); background: #000; }
   .demo figcaption { margin-top: 0.6rem; font-size: 1rem; line-height: 1.45; }
   .demo figcaption b { display: block; font-weight: 600; }
   .demo figcaption span { font-family: var(--sans); font-size: 0.84rem; color: var(--muted); }
+  .demo figcaption a { font-family: var(--sans); font-size: 0.8rem; }
   .sec-body > p.setup { margin: 1.6rem 0 0; max-width: var(--measure); color: var(--muted); font-size: 1.02rem; }
 
   /* Publications */
@@ -297,7 +317,9 @@
   .pub .me { font-weight: 600; }
   .pub .where { font-style: italic; }
   .pub .note { font-family: var(--sans); font-size: 0.82rem; color: var(--fence); font-weight: 500; }
+  .pub .status { font-family: var(--sans); font-size: 0.82rem; color: var(--orbit); font-weight: 600; }
   .pub .chips { margin-left: 0.35rem; vertical-align: 0.08em; }
+  .eq-note { font-family: var(--sans); font-size: 0.82rem; color: var(--muted); margin: -0.3rem 0 0 2.6rem; }
   .empty-note { font-family: var(--sans); font-size: 0.9rem; color: var(--muted); }
   details { margin-top: 1.6rem; max-width: 46rem; }
   summary { font-family: var(--sans); font-size: 0.92rem; color: var(--muted); cursor: pointer; }
@@ -334,7 +356,7 @@
   /* ---------- Responsive ---------- */
   @media (max-width: 980px) {
     .hero .wrap { grid-template-columns: minmax(0, 1fr); }
-    .fig { max-width: 40rem; }
+    .fig { max-width: 42rem; }
   }
   @media (max-width: 760px) {
     body { font-size: 1.0625rem; }
@@ -347,10 +369,11 @@
     .nav-name { display: none; }
     .news li { grid-template-columns: minmax(0, 1fr); gap: 0.1rem; }
   }
-  @media (max-width: 480px) {
+  @media (max-width: 560px) {
     .planes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-    .map { grid-column: 1 / -1; grid-row: 2; }
+    .map { grid-column: 1 / -1; grid-row: 2; margin-top: 0.4rem; }
     .map .arrow { display: none; }
+    .legend { font-size: 0.82rem; }
     .avatar { width: 4.2rem; height: 4.2rem; font-size: 1.2rem; }
   }
   @media print {
@@ -399,7 +422,7 @@
         I design controllers with formal safety guarantees for robots and robot teams that must complete a mission while staying inside limits that change with position.
       </p>
       <ul class="links">
-        <li><a class="primary" href="https://scholar.google.com/citations?user=Gc7Lfs0AAAAJ&amp;hl=en">Google Scholar</a></li>
+        <li><a class="primary" href="https://scholar.google.com/citations?user=7O4tqH0AAAAJ&amp;hl=en">Google Scholar</a></li>
         <li><a href="cv.pdf">CV</a></li>
         <li><a href="https://github.com/Shubham28Singh">GitHub</a></li>
         <li><a href="https://www.linkedin.com/in/shubham28-singh">LinkedIn</a></li>
@@ -411,26 +434,39 @@
     <figure class="fig" aria-labelledby="fig1-cap">
       <div class="planes">
         <figure class="plane">
-          <svg id="actual" viewBox="-1.18 -1.18 2.36 2.36" role="img" aria-label="Actual plane: a desired circular orbit offset inside a circular geofence, so the safety margin is narrow on one side and wide on the other."></svg>
-          <figcaption>Actual plane</figcaption>
+          <svg id="actual" viewBox="-1.18 -1.18 2.36 2.36" role="img" aria-label="Actual plane: the desired orbit C, the unit circle, lies inside the geofence C prime, a circle of radius mu centred at lambda, so the safety margin between them is narrow on one side and wide on the other."></svg>
+          <figcaption>
+            Actual plane (<i>z</i>)
+            <ul class="legend">
+              <li><span class="key orbit-key" aria-hidden="true"></span><span class="tex" data-tex="\mathcal{C}: |z| = 1">𝒞: |z| = 1</span></li>
+              <li><span class="key fence-key" aria-hidden="true"></span><span class="tex" data-tex="\mathcal{C}': |z - \lambda| = \mu">𝒞′: |z − λ| = μ</span></li>
+            </ul>
+          </figcaption>
         </figure>
-        <div class="map" aria-hidden="true">
-          w = <span style="white-space:nowrap">(z &minus; a) / (1 &minus; az)</span>
-          <span class="arrow">&#x27F6;</span>
+        <div class="map">
+          <span class="tex" data-display="1" data-tex="w = f(z) = \frac{z+\alpha}{z+\beta}">w = f(z) = (z + α) / (z + β)</span>
+          <span class="tex beta" data-tex="\beta = 1/\alpha">β = 1/α</span>
+          <span class="arrow" aria-hidden="true">&#x27F6;</span>
         </div>
         <figure class="plane">
-          <svg id="transformed" viewBox="-1.18 -1.18 2.36 2.36" role="img" aria-label="Transformed plane: the same orbit and geofence become concentric circles with a uniform safety margin."></svg>
-          <figcaption>Transformed plane</figcaption>
+          <svg id="transformed" viewBox="-1.18 -1.18 2.36 2.36" role="img" aria-label="Transformed plane: f of C and f of C prime are concentric circles centred at the origin, with radii absolute alpha and absolute value of lambda plus alpha over mu, so the safety margin is uniform."></svg>
+          <figcaption>
+            Transformed plane (<i>w</i>)
+            <ul class="legend">
+              <li><span class="key orbit-key" aria-hidden="true"></span><span class="tex" data-tex="f(\mathcal{C}): |w| = |\alpha|">f(𝒞): |w| = |α|</span></li>
+              <li><span class="key fence-key" aria-hidden="true"></span><span class="tex" data-tex="f(\mathcal{C}'): |w| = \left|\frac{\lambda + \alpha}{\mu}\right|">f(𝒞′): |w| = |(λ + α)/μ|</span></li>
+            </ul>
+          </figcaption>
         </figure>
       </div>
       <div class="controls">
-        <label for="offset">Move the orbit off-centre</label>
-        <input type="range" id="offset" min="0" max="0.6" step="0.01" value="0.38" aria-describedby="readout">
+        <label for="offset">Shift the geofence centre <i>&lambda;</i></label>
+        <input type="range" id="offset" min="0" max="0.7" step="0.01" value="0.38" aria-describedby="readout">
         <button class="pill-btn" type="button" id="pause" aria-pressed="false">Pause</button>
         <p class="readout" id="readout" aria-live="polite"></p>
       </div>
       <p class="fig-caption" id="fig1-cap">
-        <b>Figure 1.</b> The core idea of my thesis. A M&ouml;bius transformation maps a desired orbit (teal) and a geofence (red) that are not concentric onto concentric circles, turning a position-dependent safety margin into a uniform one. A barrier Lyapunov function is designed there, and the control law is expressed back in the actual plane. Schematic; the figure is computed live from the map above.
+        <b>Figure 1.</b> The core idea of my thesis. The desired orbit (teal) and the geofence (red) are not concentric, so the safety margin between them depends on position. The M&ouml;bius transformation <i>f</i>, with &alpha; chosen from &lambda; and &mu;, maps both circles onto concentric circles, where the margin is uniform. A barrier Lyapunov function is designed there, and the control law is expressed back in the actual plane. The figure is computed live from <i>f</i> with &mu; = 1.8; axes are rescaled in each plane for display.
       </p>
     </figure>
   </div>
@@ -444,7 +480,7 @@
       <h2>About</h2>
       <div class="sec-body about">
         <p>
-          I am a postdoctoral researcher at Institute of Science Tokyo, working with Professor Katsuki Fujisawa onSafe autonomous system with reinforcement learning. My research sits at the intersection of <span class="kw">nonlinear control theory</span>, <span class="kw">optimization</span>, and <span class="kw">learning</span>, with the goal of making autonomous robots and robot teams provably safe in realistic operating conditions.
+          I am a postdoctoral researcher at Institute of Science Tokyo, working with Professor Katsuki Fujisawa on safe autonomous systems with reinforcement learning. My research sits at the intersection of <span class="kw">nonlinear control theory</span>, <span class="kw">optimization</span>, and <span class="kw">learning</span>, with the goal of making autonomous robots and robot teams provably safe in realistic operating conditions.
         </p>
         <p>
           I received my Ph.D. in Control Systems and Automation from IIT Jodhpur in 2025, advised by Prof. Anoop Jain. My thesis introduced a M&ouml;bius-transformation-based barrier Lyapunov framework for robots whose safety margins vary with position, and extended it to phase-coordinated multi-agent systems and flow-field disturbances, with hardware experiments on Crazyflie 2.1 quadrotors and Khepera IV ground robots. Before that, I completed an M.Tech. at NIT Hamirpur and a B.Tech. at Bhilai Institute of Technology, both in Electrical Engineering.
@@ -474,15 +510,17 @@
     <div class="wrap sec-head">
       <h2>News</h2>
       <div class="sec-body">
-        <p class="news-meta">Last updated [PLACEHOLDER: month year]</p>
+        <p class="news-meta">Last updated September 2026</p>
         <!-- Add new items at the top. Items after the sixth get class="more". -->
         <ul class="news" id="news-list">
-          <li><time>September 2026</time><span><span class="tag">Position</span>Joined Fujisawa Lab at Institute of Science Tokyo as a postdoctoral researcher.</span></li>
+          <li><time>Sep 2026</time><span><span class="tag">Conference</span>Two papers accepted at the Indian Control Conference 2026: <i>Enforcing a Strict Safety Margin in LLM Text Generation via Barrier Lyapunov Control</i>, and <i>Safe Unicycle Navigation Among Multiple Obstacles Under Bounded Disturbances: A Learning-Augmented CLF-CBF Approach</i>.</span></li>
+          <li><time>Sep 2026</time><span><span class="tag">Position</span>Joined Fujisawa Lab at Institute of Science Tokyo as a postdoctoral researcher.</span></li>
+          <li><time>Jul 2026</time><span><span class="tag">Journal</span>Our paper on nonconcentric boundary-constrained circular formation control in spatiotemporal flow fields was accepted in the <i>ASME Journal of Mechanisms and Robotics</i>. <a href="https://doi.org/10.1115/1.4072559">Paper</a></span></li>
           <li><time>May 2026</time><span><span class="tag">Journal</span>Our paper on M&ouml;bius-transformation-based circular motion control in nonconcentric geofences appeared in <i>IEEE Transactions on Automatic Control</i>, vol. 71, no. 5. <a href="https://doi.org/10.1109/TAC.2025.3631525">Paper</a></span></li>
           <li><time>Jan 2026</time><span><span class="tag">Position</span>Started as a Research Associate at the DSC Lab, IIT Jodhpur, working on safe control under uncertainty with optimization and reinforcement learning.</span></li>
           <li><time>Dec 2025</time><span><span class="tag">Milestone</span>Completed my Ph.D. at IIT Jodhpur with the thesis <i>Coordination and Control of Robotic Systems under Nonuniform Motion Constraints</i>.</span></li>
-          <li><time>Sep 2025</time><span><span class="tag">Preprint</span>Phase-coordinated multi-agent circular formation control with non-concentric boundary constraints is on arXiv. <a href="https://doi.org/10.48550/arXiv.2509.08534">Preprint</a></span></li>
-          <li><time>Jul 2024</time><span><span class="tag">Talk</span>Presented constrained synchronization of chaotic systems at the American Control Conference 2024.</span></li>
+          <li class="more"><time>Sep 2025</time><span><span class="tag">Preprint</span>Phase-coordinated multi-agent circular formation control with non-concentric boundary constraints is on arXiv. <a href="https://doi.org/10.48550/arXiv.2509.08534">Preprint</a></span></li>
+          <li class="more"><time>Jul 2024</time><span><span class="tag">Talk</span>Presented constrained synchronization of chaotic systems at the American Control Conference 2024.</span></li>
           <li class="more"><time>May 2024</time><span><span class="tag">Preprint</span>First preprint on stabilizing circular motion within a nonconcentric circular boundary. <a href="https://arxiv.org/abs/2405.06989">arXiv</a></span></li>
           <li class="more"><time>2024</time><span><span class="tag">Journal</span>Collision avoidance and connectivity preservation with asymmetric time-varying BLFs published in <i>Systems &amp; Control Letters</i>. <a href="https://doi.org/10.1016/j.sysconle.2023.105672">Paper</a></span></li>
           <li class="more"><time>2023</time><span><span class="tag">Journal</span>Bounded voltage regulation in DC microgrids published in <i>IEEE Control Systems Letters</i>.</span></li>
@@ -511,7 +549,7 @@
               <h4>Geofencing with nonconcentric boundaries</h4>
               <p>Circular motion control of a unicycle robot inside a geofence that is not centred on the desired orbit. A M&ouml;bius transformation maps the uneven margin to a uniform one, where the problem becomes either trajectory-constraining or obstacle-avoidance; the resulting control law depends only on actual-plane parameters.</p>
               <div class="meta"><span class="venue">IEEE Trans. Automatic Control, 2026</span><span>Khepera IV and Crazyflie 2.1</span>
-                <span class="chips"><a href="https://doi.org/10.1109/TAC.2025.3631525">Paper</a><a href="https://arxiv.org/abs/2405.06989">arXiv</a><a href="https://github.com/[PLACEHOLDER]">Code</a></span></div>
+                <span class="chips"><a href="https://doi.org/10.1109/TAC.2025.3631525">Paper</a><a href="https://arxiv.org/abs/2405.06989">arXiv</a><a href="#demos">Video</a><a href="https://github.com/[PLACEHOLDER]">Code</a></span></div>
             </div>
           </li>
           <li>
@@ -520,16 +558,16 @@
               <h4>Phase-coordinated multi-agent motion</h4>
               <p>M&ouml;bius phase-shift coupled synchronization and balancing. Agents evenly spaced in the transformed plane become unevenly spaced in the actual plane, so a team can concentrate coverage in regions that need intensified monitoring, such as zones near critical infrastructure on a patrolled border.</p>
               <div class="meta"><span class="venue">Under review, IEEE TAC</span><span>Four-robot Khepera IV experiments</span>
-                <span class="chips"><a href="https://doi.org/10.48550/arXiv.2509.08534">arXiv</a><a href="https://github.com/[PLACEHOLDER]">Code</a></span></div>
+                <span class="chips"><a href="https://doi.org/10.48550/arXiv.2509.08534">arXiv</a><a href="#demos">Video</a><a href="https://github.com/[PLACEHOLDER]">Code</a></span></div>
             </div>
           </li>
           <li>
             <div class="thumb" aria-hidden="true"><svg data-thumb="flow" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
             <div>
-              <h4>Coordination in spatio-temporal flow fields</h4>
+              <h4>Coordination in spatiotemporal flow fields</h4>
               <p>Extension to agents moving through smooth, bounded flows such as wind or ocean currents. Flow-induced motion enters the inertial-frame dynamics, and flow-aware BLF control laws keep the formation inside the boundary.</p>
-              <div class="meta"><span class="venue">Under review</span><span>Simulation</span>
-                <span class="chips"><a href="[PLACEHOLDER]">Preprint</a></span></div>
+              <div class="meta"><span class="venue">ASME J. Mechanisms and Robotics, 2026</span>
+                <span class="chips"><a href="https://doi.org/10.1115/1.4072559">Paper</a></span></div>
             </div>
           </li>
           <li>
@@ -557,13 +595,22 @@
           <li>
             <div class="thumb" aria-hidden="true"><svg data-thumb="circumnav" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
             <div>
-              <h4>Safe circumnavigation with CBF/CLF-QP and reinforcement learning</h4>
+              <h4>Safe navigation with learning-augmented CLF&ndash;CBF control</h4>
               <ul class="focus-list">
-                <li>Safe navigation in uncertain, obstacle-cluttered environments combining CBF/CLF quadratic programs with reinforcement learning (PPO).</li>
-                <li>Robust multi-agent circumnavigation under bounded disturbances and unknown dynamic obstacles.</li>
+                <li>Safe unicycle navigation among multiple obstacles under bounded disturbances, combining CLF&ndash;CBF quadratic programs with learning.</li>
+                <li>Robust multi-agent circumnavigation under bounded disturbances and unknown dynamic obstacles, with reinforcement learning (PPO).</li>
                 <li>Resilient formation control: RL-based detection and optimization-based mitigation of false data injection attacks.</li>
-                <li>[PLACEHOLDER: current postdoctoral project at Institute of Science Tokyo]</li>
+                <li>Safe autonomous systems with reinforcement learning at Fujisawa Lab, Institute of Science Tokyo.</li>
               </ul>
+              <div class="meta"><span class="venue">Indian Control Conference 2026 (accepted)</span></div>
+            </div>
+          </li>
+          <li>
+            <div class="thumb" aria-hidden="true"><svg data-thumb="llm" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div>
+              <h4>Barrier Lyapunov control for safe LLM text generation</h4>
+              <p>Bringing barrier Lyapunov ideas from robotics to large language models: enforcing a strict safety margin during text generation, with generation treated as a controlled process.</p>
+              <div class="meta"><span class="venue">Indian Control Conference 2026 (accepted)</span><span>With Anand Singh and Anjali Tiwari</span></div>
             </div>
           </li>
         </ul>
@@ -571,30 +618,34 @@
     </div>
   </section>
 
-  <!-- ================= DEMONSTRATIONS ================= -->
+  <!-- ================= EXPERIMENTS ================= -->
   <section id="demos">
     <div class="wrap sec-head">
       <h2>Experiments</h2>
       <div class="sec-body">
         <p class="intro">Hardware validation of the controllers above.</p>
-        <!--
-          To add a video, replace the placeholder text inside a .frame with, for example:
-            <iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID" title="Khepera IV geofencing experiment"
-                    allow="picture-in-picture; fullscreen" loading="lazy"></iframe>
-          and add class "has-media" to that .frame. A GIF also works: <img src="demo.gif" alt="...">
-        -->
+        <!-- To change a video, replace the VIDEO_ID after /embed/ in the iframe src and in the "Watch on YouTube" link. -->
         <div class="demos">
           <figure class="demo">
-            <div class="frame">[PLACEHOLDER: video or GIF]</div>
-            <figcaption><b>Circular motion in a nonconcentric geofence</b><span>Khepera IV ground robot, motion capture with ROS</span></figcaption>
+            <div class="frame has-media">
+              <iframe src="https://www.youtube-nocookie.com/embed/aLS5gegc7xc" title="Circular motion in a nonconcentric geofence (Khepera IV)" loading="lazy"
+                      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <figcaption><b>Circular motion in a nonconcentric geofence</b><span>Khepera IV ground robot, motion capture with ROS</span><br><a href="https://www.youtube.com/watch?v=aLS5gegc7xc">Watch on YouTube</a></figcaption>
           </figure>
           <figure class="demo">
-            <div class="frame">[PLACEHOLDER: video or GIF]</div>
-            <figcaption><b>M&ouml;bius phase-shift coupled balancing</b><span>Four Khepera IV robots</span></figcaption>
+            <div class="frame has-media">
+              <iframe src="https://www.youtube-nocookie.com/embed/FkHR-GATFrA" title="Möbius phase-shift coupled balancing (four Khepera IV robots)" loading="lazy"
+                      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <figcaption><b>M&ouml;bius phase-shift coupled balancing</b><span>Four Khepera IV robots</span><br><a href="https://www.youtube.com/watch?v=FkHR-GATFrA">Watch on YouTube</a></figcaption>
           </figure>
           <figure class="demo">
-            <div class="frame">[PLACEHOLDER: video or GIF]</div>
-            <figcaption><b>[PLACEHOLDER: experiment title]</b><span>Crazyflie 2.1 quadrotor</span></figcaption>
+            <div class="frame has-media">
+              <iframe src="https://www.youtube-nocookie.com/embed/xgAut_E1HKw" title="Crazyflie 2.1 quadrotor experiment" loading="lazy"
+                      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <figcaption><b>Quadrotor experiment</b><span>Crazyflie 2.1 quadrotor</span><br><a href="https://www.youtube.com/watch?v=xgAut_E1HKw">Watch on YouTube</a></figcaption>
           </figure>
         </div>
         <p class="setup">Experiments run in a motion-capture arena: overhead cameras with Qualisys Track Manager provide each robot's position and heading, and control commands are sent over ROS.</p>
@@ -607,12 +658,13 @@
     <div class="wrap sec-head">
       <h2>Publications</h2>
       <div class="sec-body">
-        <p class="intro">Full, current list on <a href="https://scholar.google.com/citations?user=Gc7Lfs0AAAAJ&amp;hl=en">Google Scholar</a>.</p>
+        <p class="intro">Full, current list on <a href="https://scholar.google.com/citations?user=7O4tqH0AAAAJ&amp;hl=en">Google Scholar</a>.</p>
 
         <ul class="filter" aria-label="Filter publications by topic">
           <li><button type="button" data-filter="all" aria-pressed="true">All</button></li>
           <li><button type="button" data-filter="geofence" aria-pressed="false">Geofencing and coordination</button></li>
           <li><button type="button" data-filter="formation" aria-pressed="false">Formation control</button></li>
+          <li><button type="button" data-filter="learning" aria-pressed="false">Learning and safety</button></li>
           <li><button type="button" data-filter="other" aria-pressed="false">Microgrids and chaotic systems</button></li>
         </ul>
 
@@ -624,12 +676,17 @@
               <span class="me">S. Singh</span> and A. Jain. <span class="where">IEEE Transactions on Automatic Control</span>, vol. 71, no. 5, pp. 2918&ndash;2933, 2026.
               <span class="chips"><a href="https://doi.org/10.1109/TAC.2025.3631525">DOI</a><a href="https://arxiv.org/abs/2405.06989">arXiv</a></span>
             </li>
-            <li class="pub" data-n="2" data-topic="formation">
+            <li class="pub" data-n="2" data-topic="geofence">
+              <span class="title">Nonconcentric Boundary-Constrained Circular Formation Control for Multi-Agent Systems in the Presence of Spatiotemporal Flow Fields</span>
+              <span class="me">S. Singh</span> and A. Jain. <span class="where">ASME Journal of Mechanisms and Robotics</span>, 2026.
+              <span class="chips"><a href="https://doi.org/10.1115/1.4072559">DOI</a></span>
+            </li>
+            <li class="pub" data-n="3" data-topic="formation">
               <span class="title">Collision Avoidance and Connectivity Preservation using Asymmetric Barrier Lyapunov Function with Time-Varying Distance-Constraints</span>
               <span class="me">S. Singh</span> and A. Jain. <span class="where">Systems &amp; Control Letters</span>, vol. 183, 105672, 2024.
               <span class="chips"><a href="https://doi.org/10.1016/j.sysconle.2023.105672">DOI</a></span>
             </li>
-            <li class="pub" data-n="3" data-topic="other">
+            <li class="pub" data-n="4" data-topic="other">
               <span class="title">Bounded Voltage Regulation in a Direct Current Microgrid using Barrier Lyapunov Function with Uncertain Load Current</span>
               <span class="me">S. Singh</span>, V. Vaishnav, A. Jain, and D. Sharma. <span class="where">IEEE Control Systems Letters</span>, vol. 7, pp. 991&ndash;996, 2023.
               <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
@@ -640,37 +697,41 @@
         <div class="pub-group">
           <h3>Conference papers</h3>
           <ol class="pubs">
-            <li class="pub" data-n="4" data-topic="other">
+            <li class="pub" data-n="5" data-topic="learning">
+              <span class="title">Enforcing a Strict Safety Margin in LLM Text Generation via Barrier Lyapunov Control</span>
+              A. Singh, <span class="me">S. Singh</span>, and A. Tiwari. <span class="where">Indian Control Conference (ICC)</span>, 2026. <span class="status">Accepted.</span>
+            </li>
+            <li class="pub" data-n="6" data-topic="learning">
+              <span class="title">Safe Unicycle Navigation Among Multiple Obstacles Under Bounded Disturbances: A Learning-Augmented CLF-CBF Approach</span>
+              <span class="me">S. Singh</span>*, A. Tiwari*, and A. Singh. <span class="where">Indian Control Conference (ICC)</span>, 2026. <span class="status">Accepted.</span>
+            </li>
+            <li class="pub" data-n="7" data-topic="other">
               <span class="title">Constrained Synchronization of Drive and Response Chaotic Systems with Parametric Uncertainty using Barrier Lyapunov Function</span>
               <span class="me">S. Singh</span> and A. Jain. <span class="where">American Control Conference (ACC)</span>, pp. 2476&ndash;2481, 2024.
               <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
             </li>
-            <li class="pub" data-n="5" data-topic="formation">
+            <li class="pub" data-n="8" data-topic="formation">
               <span class="title">Time-Varying Distance-Constrained Formation Maneuver Control with Guaranteed Prescribed Performance for Mobile Agents</span>
               <span class="me">S. Singh</span> and A. Jain. <span class="where">American Control Conference (ACC)</span>, pp. 5134&ndash;5139, 2022.
               <span class="chips"><a href="https://doi.org/10.23919/ACC53348.2022.9867847">DOI</a></span>
             </li>
-            <li class="pub" data-n="6" data-topic="formation">
+            <li class="pub" data-n="9" data-topic="formation">
               <span class="title">Distance-Constrained Formation Control of Multi-Agent Systems Using Asymmetric Barrier Lyapunov Function</span>
               <span class="me">S. Singh</span> and A. Jain. <span class="where">Indian Control Conference (ICC)</span>, pp. 395&ndash;399, 2021.
               <span class="note">Best Student Paper Award finalist.</span>
               <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
             </li>
           </ol>
+          <p class="eq-note" id="eq-note">* Equal contribution.</p>
         </div>
 
         <div class="pub-group">
           <h3>Under review</h3>
           <ol class="pubs">
-            <li class="pub" data-n="7" data-topic="geofence">
+            <li class="pub" data-n="10" data-topic="geofence">
               <span class="title">Phase-Coordinated Multi-Agent Circular Formation Control with Non-Concentric Boundary Constraints</span>
               <span class="me">S. Singh</span> and A. Jain. Under review, <span class="where">IEEE Transactions on Automatic Control</span>.
               <span class="chips"><a href="https://doi.org/10.48550/arXiv.2509.08534">arXiv</a></span>
-            </li>
-            <li class="pub" data-n="8" data-topic="geofence">
-              <span class="title">Nonconcentric Boundary-Constrained Circular Formation Control for Multi-Agent Systems in the Presence of Spatio-Temporal Flow Fields</span>
-              <span class="me">S. Singh</span> and A. Jain. Under review.
-              <span class="chips"><a href="[PLACEHOLDER]">Preprint</a></span>
             </li>
           </ol>
         </div>
@@ -680,12 +741,12 @@
         <details id="earlier">
           <summary>Earlier work from my M.Tech. (2020)</summary>
           <ol class="pubs">
-            <li class="pub" data-n="9" data-topic="other">
+            <li class="pub" data-n="11" data-topic="other">
               <span class="title">Synchronization of MLS Chaotic System Using Adaptive Backstepping Control</span>
               <span class="me">S. Singh</span> and H. Handa. <span class="where">7th International Conference on Signal Processing and Integrated Networks (SPIN)</span>, 2020.
               <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
             </li>
-            <li class="pub" data-n="10" data-topic="other">
+            <li class="pub" data-n="12" data-topic="other">
               <span class="title">Synchronization of Hyperchaotic Rossler System using Backstepping and Sliding Mode Control</span>
               <span class="me">S. Singh</span>, A. Tiwari, and H. Handa. <span class="where">2nd International Conference on Innovative Mechanisms for Industry Applications (ICIMIA)</span>, 2020.
               <span class="chips"><a href="[PLACEHOLDER]">DOI</a></span>
@@ -706,7 +767,7 @@
           <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>M&ouml;bius-BLF circular motion control in nonconcentric geofences</span><span class="rel">IEEE TAC 2026</span></li>
           <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>Phase-coordinated synchronization and balancing under boundary constraints</span><span class="rel">Under review</span></li>
           <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>Asymmetric time-varying BLF formation control with collision avoidance and connectivity preservation</span><span class="rel">SCL 2024</span></li>
-          <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>CBF/CLF-QP safe control and circumnavigation</span><span class="rel">[PLACEHOLDER]</span></li>
+          <li><a href="https://github.com/[PLACEHOLDER]">[PLACEHOLDER: repo name]</a><span>Learning-augmented CLF&ndash;CBF safe navigation among obstacles</span><span class="rel">ICC 2026</span></li>
         </ul>
       </div>
     </div>
@@ -774,7 +835,7 @@
       <!-- The address is assembled by the script so simple scrapers cannot read it. -->
       <p><a id="email" href="#contact" data-u="shubhamrathod2810" data-d="gmail.com">shubhamrathod2810 [at] gmail [dot] com</a></p>
       <p class="small">Tokyo, Japan</p>
-      <p class="small">Last updated [PLACEHOLDER: month year]</p>
+      <p class="small">Last updated September 2026</p>
     </div>
     <button class="pill-btn" type="button" id="theme">Switch to dark</button>
   </div>
@@ -798,46 +859,48 @@
     for (var i = 0; i < pts.length; i++) s += (i ? "L" : "M") + pts[i][0].toFixed(4) + " " + (-pts[i][1]).toFixed(4);
     return close ? s + "Z" : s;
   }
-  function mobius(a) {           // transformed w -> actual z
-    return function (re, im) {
-      var nr = re + a, ni = im, dr = 1 + a * re, di = a * im, d = dr * dr + di * di;
-      return [(nr * dr + ni * di) / d, (ni * dr - nr * di) / d];
-    };
-  }
-  function ident(re, im) { return [re, im]; }
-  function circle(r, map, n, cx, cy) {
+  function circlePts(r, n, cx, cy) {
     var pts = []; cx = cx || 0; cy = cy || 0;
-    for (var i = 0; i < n; i++) { var t = 2 * Math.PI * i / n; pts.push(map(cx + r * Math.cos(t), cy + r * Math.sin(t))); }
+    for (var i = 0; i < n; i++) { var t = 2 * Math.PI * i / n; pts.push([cx + r * Math.cos(t), cy + r * Math.sin(t)]); }
     return pts;
   }
-  function ray(theta, map, n) {
-    var pts = [];
-    for (var i = 0; i <= n; i++) { var r = i / n; pts.push(map(r * Math.cos(theta), r * Math.sin(theta))); }
-    return pts;
-  }
+  function cdiv(ar, ai, br, bi) { var d = br * br + bi * bi; return [(ar * br + ai * bi) / d, (ai * br - ar * bi) / d]; }
   function arrow(g, x, y, dx, dy, cls) {
     var x2 = x + dx, y2 = y + dy, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, h = 0.06;
     el("path", { d: pathFrom([[x, y], [x2, y2]]) + pathFrom([[x2 - h * ux + h * 0.6 * uy, y2 - h * uy - h * 0.6 * ux], [x2, y2], [x2 - h * ux - h * 0.6 * uy, y2 - h * uy + h * 0.6 * ux]]), "class": cls }, g);
   }
-  function geofenceScene(g, map, R0) {
-    el("path", { d: pathFrom(circle(1, map, 200), true) + pathFrom(circle(R0, map, 200), true), "class": "zone" }, g);
-    el("path", { d: pathFrom(circle(1, map, 200), true), "class": "fence" }, g);
-    el("path", { d: pathFrom(circle(R0, map, 200), true), "class": "orbit" }, g);
-  }
 
-  /* ---------- Hero figure (interactive) ---------- */
-  var R0 = 0.62, a = 0.38;
+  /* ---------- Hero figure: w = f(z) = (z + alpha)/(z + beta), beta = 1/alpha ----------
+     Actual plane:      C  : |z| = 1           (desired orbit)
+                        C' : |z - lambda| = mu (geofence), with mu > 1 + lambda
+     alpha solves (alpha + lambda)(1/alpha + lambda) = mu^2 with |alpha| < 1, so that
+     f(C) : |w| = |alpha| and f(C') : |w| = |(lambda + alpha)/mu| are concentric.
+     Each plane is rescaled so the geofence has radius 1 on screen. */
+  var MU = 1.8, lam = 0.38, le, al, be, R;
+  function setLambda(l) {
+    lam = l; le = Math.max(l, 1e-4);
+    var K = MU * MU - 1 - le * le;
+    al = 2 * le / (K + Math.sqrt(K * K - 4 * le * le));   // numerically stable smaller root
+    be = 1 / al;
+    R = (le + al) / MU;
+  }
+  function f(z)    { return cdiv(z[0] + al, z[1], z[0] + be, z[1]); }
+  function finv(w) { return cdiv(be * w[0] - al, be * w[1], 1 - w[0], -w[1]); }
+  function toA(z)  { return [(z[0] - le) / MU, z[1] / MU]; }     // actual plane, screen units
+  function toT(w)  { return [w[0] / R, w[1] / R]; }               // transformed plane, screen units
+  function fromTgrid(W) { return toA(finv([W[0] * R, W[1] * R])); }
+
   var actual = document.getElementById("actual"), transformed = document.getElementById("transformed");
   var slider = document.getElementById("offset"), readout = document.getElementById("readout");
 
-  function drawPlane(svg, map, labels) {
+  function scene(svg, grid, fence, orbit, gaps, labels) {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     var g = el("g", {}, svg);
-    [0.2, 0.4, 0.8].forEach(function (r) { el("path", { d: pathFrom(circle(r, map, 180), true), "class": "grid" }, g); });
-    for (var k = 0; k < 12; k++) el("path", { d: pathFrom(ray(k * Math.PI / 6, map, 60)), "class": "grid" }, g);
-    geofenceScene(g, map, R0);
-    var zR = map(R0, 0)[0], zL = map(-R0, 0)[0];
-    [[zR, 1], [-1, zL]].forEach(function (p) {
+    grid.forEach(function (p) { el("path", { d: pathFrom(p.pts, p.closed), "class": "grid" }, g); });
+    el("path", { d: pathFrom(fence, true) + pathFrom(orbit, true), "class": "zone" }, g);
+    el("path", { d: pathFrom(fence, true), "class": "fence" }, g);
+    el("path", { d: pathFrom(orbit, true), "class": "orbit" }, g);
+    gaps.forEach(function (p) {
       el("line", { x1: p[0], y1: 0, x2: p[1], y2: 0, "class": "gap" }, g);
       [p[0], p[1]].forEach(function (x) { el("line", { x1: x, y1: -0.035, x2: x, y2: 0.035, "class": "gap" }, g); });
     });
@@ -850,27 +913,48 @@
       ring: el("circle", { r: 0.045, "class": "agent-ring" }, svg)
     };
   }
+  function gridFrom(map) {
+    var out = [];
+    [0.2, 0.4, 0.8].forEach(function (r) { out.push({ pts: circlePts(r, 180).map(map), closed: true }); });
+    for (var k = 0; k < 12; k++) {
+      var th = k * Math.PI / 6, pts = [];
+      for (var i = 0; i <= 60; i++) { var r = i / 60; pts.push(map([r * Math.cos(th), r * Math.sin(th)])); }
+      out.push({ pts: pts, closed: false });
+    }
+    return out;
+  }
 
-  var agA, agT, phase = 2.2;
+  var agA, agT, phase = 2.6;
   function rebuild() {
-    var map = mobius(a);
-    var zR = map(R0, 0)[0], zL = map(-R0, 0)[0], narrow = 1 - zR, wide = 1 + zL;
-    var uneven = Math.abs(wide - narrow) > 0.02;
-    agA = drawPlane(actual, map, uneven
-      ? [{ x: zR - 0.06, y: 0.035, anchor: "end", text: "narrow" }, { x: (zL - 1) / 2, y: -0.08, anchor: "middle", text: "wide" }]
-      : [{ x: 0, y: 0.035, anchor: "middle", text: "uniform" }]);
-    agT = drawPlane(transformed, ident, [{ x: 0, y: 0.035, anchor: "middle", text: "uniform" }]);
-    readout.innerHTML = (uneven
-      ? "Margin in the actual plane varies from <b>" + Math.min(narrow, wide).toFixed(2) + "</b> to <b>" + Math.max(narrow, wide).toFixed(2) + "</b>"
-      : "Orbit centred: the margin is already uniform") +
-      " (fence radius 1). In the transformed plane it is <b>" + (1 - R0).toFixed(2) + "</b> everywhere.";
+    setLambda(lam);
+    var xL = (-1 - le) / MU, xR = (1 - le) / MU, rho = al / R;
+    var narrow = MU - 1 - lam, wide = MU - 1 + lam, uneven = (wide - narrow) > 0.02;
+
+    agA = scene(actual, gridFrom(fromTgrid),
+      circlePts(1, 220),                                       // C' mapped to screen
+      circlePts(1, 220).map(function (p) { return toA(p); }),  // C  mapped to screen
+      [[-1, xL], [xR, 1]],
+      uneven
+        ? [{ x: xL + 0.06, y: 0.035, anchor: "start", text: "narrow" }, { x: (xR + 1) / 2, y: -0.08, anchor: "middle", text: "wide" }]
+        : [{ x: toA([0, 0])[0], y: 0.035, anchor: "middle", text: "uniform" }]);
+
+    agT = scene(transformed, gridFrom(function (p) { return p; }),
+      circlePts(1, 220), circlePts(rho, 220),
+      [[-1, -rho], [rho, 1]],
+      [{ x: 0, y: 0.035, anchor: "middle", text: "uniform" }]);
+
+    readout.innerHTML = "<i>&lambda;</i> = <b>" + lam.toFixed(2) + "</b>, <i>&mu;</i> = <b>" + MU.toFixed(2) + "</b>, so <i>&alpha;</i> = <b>" + al.toFixed(3) + "</b>. " +
+      (uneven
+        ? "Actual plane: the margin between the orbit and the geofence varies from <b>" + narrow.toFixed(2) + "</b> to <b>" + wide.toFixed(2) + "</b>. "
+        : "Actual plane: the circles are concentric, so the margin is already uniform. ") +
+      "Transformed plane: concentric circles |<i>w</i>| = <b>" + al.toFixed(3) + "</b> and <b>" + R.toFixed(3) + "</b>, so the margin is uniform.";
     render(phase);
   }
   function render(theta) {
-    var map = mobius(a), pA = [], pT = [];
+    var pA = [], pT = [];
     for (var i = 0; i <= 28; i++) {
-      var t = theta - 0.9 * i / 28, re = R0 * Math.cos(t), im = R0 * Math.sin(t);
-      pT.push([re, im]); pA.push(map(re, im));
+      var t = theta - 0.9 * i / 28, z = [Math.cos(t), Math.sin(t)];   // robot on C at constant speed
+      pA.push(toA(z)); pT.push(toT(f(z)));
     }
     [[agA, pA], [agT, pT]].forEach(function (p) {
       p[0].trail.setAttribute("d", pathFrom(p[1]));
@@ -880,7 +964,7 @@
 
   if (actual && transformed) {
     rebuild();
-    slider.addEventListener("input", function () { a = parseFloat(slider.value); rebuild(); });
+    slider.addEventListener("input", function () { lam = parseFloat(slider.value); rebuild(); });
 
     var running = !reduceMotion, last = null, raf = null, btn = document.getElementById("pause");
     function tick(ts) {
@@ -902,10 +986,23 @@
     });
   }
 
-  /* ---------- Research thumbnails ---------- */
+  /* ---------- Research thumbnails (schematic) ---------- */
+  function oldMobius(a) {
+    return function (re, im) {
+      var nr = re + a, ni = im, dr = 1 + a * re, di = a * im, d = dr * dr + di * di;
+      return [(nr * dr + ni * di) / d, (ni * dr - nr * di) / d];
+    };
+  }
+  function ring(r, m, n) { return circlePts(r, n).map(function (p) { return m(p[0], p[1]); }); }
+  function geofenceScene(g, m, r0) {
+    el("path", { d: pathFrom(ring(1, m, 200), true) + pathFrom(ring(r0, m, 200), true), "class": "zone" }, g);
+    el("path", { d: pathFrom(ring(1, m, 200), true), "class": "fence" }, g);
+    el("path", { d: pathFrom(ring(r0, m, 200), true), "class": "orbit" }, g);
+  }
+  var R0 = 0.62;
   var thumbs = {
     geofence: function (svg) {
-      var m = mobius(0.38); geofenceScene(svg, m, R0);
+      var m = oldMobius(0.38); geofenceScene(svg, m, R0);
       var pts = [];
       for (var i = 0; i <= 220; i++) {
         var s = i / 220, th = -2.4 + 9 * s, r = R0 + 0.3 * Math.exp(-4 * s);
@@ -915,7 +1012,7 @@
       var e = pts[pts.length - 1]; el("circle", { cx: e[0], cy: -e[1], r: 0.07, "class": "agent" }, svg);
     },
     phase: function (svg) {
-      var m = mobius(0.38); geofenceScene(svg, m, R0);
+      var m = oldMobius(0.38); geofenceScene(svg, m, R0);
       for (var k = 0; k < 5; k++) {
         var th = 0.5 + 2 * Math.PI * k / 5, p = m(R0 * Math.cos(th), R0 * Math.sin(th));
         el("circle", { cx: p[0], cy: -p[1], r: 0.075, "class": "agent" }, svg);
@@ -928,9 +1025,9 @@
         var u = 0.7 + 0.3 * Math.sin(2.2 * y), v = 0.35 * Math.cos(2 * x), L = Math.hypot(u, v);
         arrow(svg, x - 0.08 * u / L, y - 0.08 * v / L, 0.16 * u / L, 0.16 * v / L, "flow");
       }
-      var m = mobius(0.38);
-      el("path", { d: pathFrom(circle(1, m, 200), true), "class": "fence" }, svg);
-      el("path", { d: pathFrom(circle(R0, m, 200), true), "class": "orbit" }, svg);
+      var m = oldMobius(0.38);
+      el("path", { d: pathFrom(ring(1, m, 200), true), "class": "fence" }, svg);
+      el("path", { d: pathFrom(ring(R0, m, 200), true), "class": "orbit" }, svg);
       [0.3, 2.4, 4.4].forEach(function (th) { var p = m(R0 * Math.cos(th), R0 * Math.sin(th)); el("circle", { cx: p[0], cy: -p[1], r: 0.07, "class": "agent" }, svg); });
     },
     formation: function (svg) {
@@ -956,21 +1053,33 @@
       el("path", { d: pathFrom(sg), "class": "signal" }, svg);
     },
     circumnav: function (svg) {
-      var obs = [0.8, 3.9], R = 0.6, pts = [];
+      var obs = [0.8, 3.9], Rr = 0.6, pts = [];
       for (var i = 0; i <= 240; i++) {
-        var th = 2 * Math.PI * i / 240, r = R;
+        var th = 2 * Math.PI * i / 240, r = Rr;
         obs.forEach(function (o) { var d = Math.atan2(Math.sin(th - o), Math.cos(th - o)); r -= 0.22 * Math.exp(-(d * d) / 0.12); });
         pts.push([r * Math.cos(th), r * Math.sin(th)]);
       }
-      el("circle", { cx: 0, cy: 0, r: R, "class": "grid" }, svg);
+      el("circle", { cx: 0, cy: 0, r: Rr, "class": "grid" }, svg);
       obs.forEach(function (o) { el("circle", { cx: 0.72 * Math.cos(o), cy: -0.72 * Math.sin(o), r: 0.17, "class": "obstacle" }, svg); });
       el("path", { d: pathFrom(pts, true), "class": "path" }, svg);
       el("path", { d: "M-0.07 0H0.07M0 -0.07V0.07", "class": "gap", style: "stroke-width:0.03" }, svg);
       var p = pts[150]; el("circle", { cx: p[0], cy: -p[1], r: 0.07, "class": "agent" }, svg);
+    },
+    llm: function (svg) {
+      // Per-token safety score (bars) kept above a strict margin (dashed line); shaded band is the unsafe region.
+      var base = -0.85, margin = -0.3, n = 13, w = 1.7 / n;
+      el("rect", { x: -0.95, y: -margin, width: 1.9, height: margin - base, "class": "band" }, svg);
+      el("line", { x1: -0.95, y1: -base, x2: 0.95, y2: -base, "class": "axis" }, svg);
+      var v = [0.55, 0.3, 0.62, 0.05, 0.42, -0.12, 0.35, 0.7, -0.05, 0.25, 0.5, -0.18, 0.4];
+      for (var i = 0; i < n; i++) {
+        var x = -0.85 + i * w, top = v[i];
+        el("rect", { x: x, y: -top, width: w * 0.62, height: top - base, rx: 0.02, "class": "bar" }, svg);
+      }
+      el("line", { x1: -0.95, y1: -margin, x2: 0.95, y2: -margin, "class": "bound-dash" }, svg);
     }
   };
   Array.prototype.forEach.call(document.querySelectorAll("svg[data-thumb]"), function (svg) {
-    var f = thumbs[svg.getAttribute("data-thumb")]; if (f) f(svg);
+    var fn = thumbs[svg.getAttribute("data-thumb")]; if (fn) fn(svg);
   });
 
   /* ---------- News toggle ---------- */
@@ -988,19 +1097,21 @@
   var buttons = document.querySelectorAll(".filter button");
   Array.prototype.forEach.call(buttons, function (b) {
     b.addEventListener("click", function () {
-      var f = b.getAttribute("data-filter"), any = false;
+      var flt = b.getAttribute("data-filter"), any = false;
       Array.prototype.forEach.call(buttons, function (o) { o.setAttribute("aria-pressed", String(o === b)); });
       Array.prototype.forEach.call(document.querySelectorAll("#publications .pub"), function (p) {
-        p.hidden = !(f === "all" || p.getAttribute("data-topic") === f);
+        p.hidden = !(flt === "all" || p.getAttribute("data-topic") === flt);
       });
       Array.prototype.forEach.call(document.querySelectorAll("#publications .pub-group"), function (g) {
         var vis = g.querySelectorAll(".pub:not([hidden])").length > 0; g.hidden = !vis; if (vis) any = true;
       });
+      var eq = document.getElementById("eq-note");
+      if (eq) eq.hidden = !(flt === "all" || flt === "learning");
       var earlier = document.getElementById("earlier");
       if (earlier) {
         var ev = earlier.querySelectorAll(".pub:not([hidden])").length > 0;
         earlier.hidden = !ev; if (ev) any = true;
-        if (f === "other") earlier.open = true;
+        if (flt === "other") earlier.open = true;
       }
       document.getElementById("pub-empty").hidden = any;
     });
@@ -1044,7 +1155,19 @@
     try { localStorage.setItem("theme", next); } catch (e) {}
     label();
   });
+
+  /* ---------- Math typesetting (KaTeX); plain-text fallbacks stay if it fails to load ---------- */
+  function typeset() {
+    if (!window.katex) return;
+    Array.prototype.forEach.call(document.querySelectorAll(".tex[data-tex]"), function (node) {
+      try { window.katex.render(node.getAttribute("data-tex"), node, { displayMode: node.hasAttribute("data-display"), throwOnError: false }); } catch (e) {}
+    });
+  }
+  if (window.katex) typeset();
+  else document.addEventListener("DOMContentLoaded", typeset);
+  window.addEventListener("load", function () { if (!document.querySelector(".tex .katex")) typeset(); });
 })();
 </script>
 </body>
 </html>
+
