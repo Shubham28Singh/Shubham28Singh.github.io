@@ -20,7 +20,18 @@
   • Colours live in :root at the top of the <style> block.
   • Math labels are typeset with KaTeX (loaded from jsDelivr); plain-text
     fallbacks are shown if it cannot load.
-  • All figures are drawn by the script at the bottom; no image files needed.
+  • Research figures: put images in images/research/ using the names below. Each highlight
+    shows NAME.png whole (any shape) and opens it full size when clicked. Optionally add a
+    smaller NAME-thumb.png to show in the box instead. .jpg, .jpeg and .webp also work.
+    Without a file, the built-in drawing is shown.
+        geofence            Geofencing with nonconcentric boundaries
+        phase-coordination  Phase-coordinated multi-agent motion
+        flow-field          Coordination in spatiotemporal flow fields
+        formation           Formation control with collision avoidance and connectivity preservation
+        constrained-control Constrained control beyond robotics
+        safe-navigation     Safe navigation with learning-augmented CLF-CBF control
+        llm-safety          Barrier Lyapunov control for safe LLM text generation
+    To use a different name, change data-img="..." on that highlight's thumb.
 -->
 <html lang="en">
 <head>
@@ -272,6 +283,12 @@
   .hl > li:first-child { border-top: 0; padding-top: 0; }
   .thumb { width: 100%; aspect-ratio: 1; background: var(--surface); border-radius: 12px; padding: 0.55rem; }
   .thumb svg { display: block; width: 100%; height: 100%; overflow: hidden; }
+  .thumb.thumb-img { display: block; aspect-ratio: auto; height: auto; padding: 0.3rem; overflow: hidden; background: #fff; border: 1px solid var(--rule); }
+  .thumb.thumb-img img { display: block; width: 100%; height: auto; max-height: 16rem; object-fit: contain; }
+  @media (min-width: 761px) {
+    .hl > li:has(> .thumb-img) { grid-template-columns: 15rem minmax(0, 1fr); }
+  }
+  .thumb-img:hover { border-color: var(--orbit); }
   .hl h4 { font-size: 1.22rem; font-weight: 600; margin: 0 0 0.35rem; line-height: 1.3; }
   .hl p { margin: 0 0 0.6rem; max-width: var(--measure); }
   .hl .meta { font-family: var(--sans); font-size: 0.84rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center; margin-top: 0.4rem; }
@@ -368,6 +385,7 @@
     .sec-head { grid-template-columns: minmax(0, 1fr); }
     .hl > li { grid-template-columns: minmax(0, 1fr); gap: 0.8rem; }
     .thumb { width: 6.5rem; }
+    .thumb.thumb-img { width: min(100%, 18rem); }
     .repos li { grid-template-columns: minmax(0, 1fr); }
     .cols { grid-template-columns: minmax(0, 1fr); }
     footer .wrap { grid-template-columns: minmax(0, 1fr); }
@@ -549,7 +567,7 @@
         <h3>Research highlights</h3>
         <ul class="hl">
           <li>
-            <div class="thumb" aria-hidden="true"><svg data-thumb="geofence" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div class="thumb" data-img="geofence" data-alt="Unicycle robot converging to a desired orbit inside a nonconcentric circular geofence"><svg data-thumb="geofence" viewBox="-1.12 -1.12 2.24 2.24" aria-hidden="true"></svg></div>
             <div>
               <h4>Geofencing with nonconcentric boundaries</h4>
               <p>Circular motion control of a unicycle robot inside a geofence that is not centred on the desired orbit. A M&ouml;bius transformation maps the uneven margin to a uniform one, where the problem becomes either trajectory-constraining or obstacle-avoidance; the resulting control law depends only on actual-plane parameters.</p>
@@ -558,7 +576,7 @@
             </div>
           </li>
           <li>
-            <div class="thumb" aria-hidden="true"><svg data-thumb="phase" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div class="thumb" data-img="phase-coordination" data-alt="Multiple agents unevenly spaced on an orbit inside a nonconcentric boundary"><svg data-thumb="phase" viewBox="-1.12 -1.12 2.24 2.24" aria-hidden="true"></svg></div>
             <div>
               <h4>Phase-coordinated multi-agent motion</h4>
               <p>M&ouml;bius phase-shift coupled synchronization and balancing. Agents evenly spaced in the transformed plane become unevenly spaced in the actual plane, so a team can concentrate coverage in regions that need intensified monitoring, such as zones near critical infrastructure on a patrolled border.</p>
@@ -567,7 +585,7 @@
             </div>
           </li>
           <li>
-            <div class="thumb" aria-hidden="true"><svg data-thumb="flow" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div class="thumb" data-img="flow-field" data-alt="Agents moving through a flow field between a desired circle C and a nonconcentric outer boundary C prime"><svg data-thumb="flow" viewBox="-1.12 -1.12 2.24 2.24" aria-hidden="true"></svg></div>
             <div>
               <h4>Coordination in spatiotemporal flow fields</h4>
               <p>Extension to agents moving through smooth, bounded flows such as wind or ocean currents. Flow-induced motion enters the inertial-frame dynamics, and flow-aware BLF control laws keep the formation inside the boundary.</p>
@@ -576,7 +594,7 @@
             </div>
           </li>
           <li>
-            <div class="thumb" aria-hidden="true"><svg data-thumb="formation" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div class="thumb" data-img="formation" data-alt="Multi-agent formation with collision-avoidance and connectivity limits"><svg data-thumb="formation" viewBox="-1.12 -1.12 2.24 2.24" aria-hidden="true"></svg></div>
             <div>
               <h4>Formation control with collision avoidance and connectivity</h4>
               <p>Distributed distance-based formation control using asymmetric time-varying BLFs. Agents are disks of different radii; the asymmetric barrier prevents collisions as agents approach and preserves communication links as they separate, with analytical bounds on all post-design signals.</p>
@@ -585,7 +603,7 @@
             </div>
           </li>
           <li>
-            <div class="thumb" aria-hidden="true"><svg data-thumb="funnel" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div class="thumb" data-img="constrained-control" data-alt="Signal kept within asymmetric time-varying bounds"><svg data-thumb="funnel" viewBox="-1.12 -1.12 2.24 2.24" aria-hidden="true"></svg></div>
             <div>
               <h4>Constrained control beyond robotics</h4>
               <p>The same barrier ideas keep signals inside prescribed, possibly asymmetric bounds in other systems: bounded voltage regulation in DC microgrids with uncertain load current, and constrained synchronization of chaotic systems with parametric uncertainty.</p>
@@ -598,7 +616,7 @@
         <h3>Current work</h3>
         <ul class="hl">
           <li>
-            <div class="thumb" aria-hidden="true"><svg data-thumb="circumnav" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div class="thumb" data-img="safe-navigation" data-alt="Robot circumnavigating a target while avoiding obstacles"><svg data-thumb="circumnav" viewBox="-1.12 -1.12 2.24 2.24" aria-hidden="true"></svg></div>
             <div>
               <h4>Safe navigation with learning-augmented CLF&ndash;CBF control</h4>
               <ul class="focus-list">
@@ -611,7 +629,7 @@
             </div>
           </li>
           <li>
-            <div class="thumb" aria-hidden="true"><svg data-thumb="llm" viewBox="-1.12 -1.12 2.24 2.24"></svg></div>
+            <div class="thumb" data-img="llm-safety" data-alt="Per-token safety score kept above a strict safety margin"><svg data-thumb="llm" viewBox="-1.12 -1.12 2.24 2.24" aria-hidden="true"></svg></div>
             <div>
               <h4>Barrier Lyapunov control for safe LLM text generation</h4>
               <p>Bringing barrier Lyapunov ideas from robotics to large language models: enforcing a strict safety margin during text generation, with generation treated as a controlled process.</p>
@@ -1091,6 +1109,37 @@
     var fn = thumbs[svg.getAttribute("data-thumb")]; if (fn) fn(svg);
   });
 
+  /* ---------- Research images from the images/research/ folder ----------
+     For a highlight with data-img="NAME", the page looks for
+       images/research/NAME.(png|jpg|jpeg|webp)        -> the figure, shown whole in the box and opened on click
+       images/research/NAME-thumb.(png|jpg|jpeg|webp)  -> optional smaller version shown in the box instead
+     If neither file exists, the drawn figure stays. */
+  var IMG_DIR = "images/research/", EXTS = ["png", "jpg", "jpeg", "webp"];
+  function findImage(base, i, done) {
+    if (i >= EXTS.length) return done(null);
+    var probe = new Image(), url = base + "." + EXTS[i];
+    probe.onload = function () { done(url); };
+    probe.onerror = function () { findImage(base, i + 1, done); };
+    probe.src = url;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".thumb[data-img]"), function (box) {
+    var name = box.getAttribute("data-img");
+    findImage(IMG_DIR + name + "-thumb", 0, function (thumbUrl) {
+      findImage(IMG_DIR + name, 0, function (fullUrl) {
+        if (!thumbUrl && !fullUrl) return;
+        thumbUrl = thumbUrl || fullUrl;
+        var a = document.createElement("a");
+        a.className = "thumb thumb-img";
+        a.href = fullUrl || thumbUrl;
+        a.title = "Open the full figure";
+        var img = document.createElement("img");
+        img.src = thumbUrl; img.alt = box.getAttribute("data-alt") || ""; img.loading = "lazy";
+        a.appendChild(img);
+        box.parentNode.replaceChild(a, box);
+      });
+    });
+  });
+
   /* ---------- News toggle ---------- */
   var newsList = document.getElementById("news-list"), newsBtn = document.getElementById("news-toggle");
   if (newsList && newsBtn) {
@@ -1178,5 +1227,3 @@
 </script>
 </body>
 </html>
-
-
